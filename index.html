@@ -3,60 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>英语学习助手-极速稳定版</title>
+    <title>ADHD 词汇抽认卡</title>
     <style>
-        :root { --primary: #4a90e2; --bg: #f5f7fa; }
-        body { font-family: sans-serif; background: var(--bg); padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); width: 90%; max-width: 500px; text-align: center; }
-        /* 使用巨大的 Emoji 代替照片 */
-        .emoji-display { font-size: 100px; margin-bottom: 20px; display: block; }
-        .quiz-word { font-size: 42px; letter-spacing: 6px; margin: 15px 0; color: var(--primary); font-weight: bold; }
-        .btn { padding: 15px 20px; border: none; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: bold; margin: 8px; color: white; }
-        .btn-uk { background: #e74c3c; }
-        .btn-us { background: #3498db; }
-        button:disabled { background: #ccc !important; opacity: 0.6; }
-        input { font-size: 24px; padding: 12px; width: 85%; border: 2px solid #ddd; border-radius: 10px; text-align: center; }
-        #timer-msg { color: #e67e22; font-weight: bold; margin-bottom: 10px; height: 24px; font-size: 18px; }
-        .nav-btn { background: #2ecc71; width: 100%; margin-top: 20px; }
+        :root { --primary: #4a90e2; --success: #2ecc71; --bg: #f0f2f5; }
+        body { font-family: sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 15px; }
+        
+        /* 卡片容器 */
+        .card-container { perspective: 1000px; width: 90%; max-width: 400px; margin-top: 20px; }
+        .card { background: white; border-radius: 25px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; min-height: 400px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        
+        .hint-area { font-size: 80px; margin-bottom: 10px; }
+        .chinese-hint { font-size: 32px; color: #333; font-weight: bold; margin: 20px 0; }
+        
+        .quiz-word { font-size: 36px; letter-spacing: 4px; margin: 15px 0; color: var(--primary); font-weight: bold; visibility: hidden; }
+        .quiz-word.show { visibility: visible; }
+
+        input { font-size: 24px; padding: 12px; width: 85%; border: 3px solid #ddd; border-radius: 12px; text-align: center; margin-top: 10px; display: none; }
+        input.show { display: block; }
+        input.correct { border-color: var(--success); background-color: #f0fff4; }
+
+        .btn { padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: bold; margin: 5px; color: white; transition: 0.2s; }
+        .btn-audio { background: #9b59b6; width: 45%; }
+        .btn-flip { background: var(--primary); width: 100%; margin-top: 15px; }
+        .btn-next { background: var(--success); width: 100%; margin-top: 15px; display: none; }
+        
+        button:disabled { background: #ccc !important; cursor: not-allowed; }
+        #timer-msg { color: #e67e22; font-weight: bold; height: 24px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div id="timer-msg"></div>
-        <div id="content"></div>
-        <button class="btn nav-btn" onclick="nextWord()">跳过，下一个 ➔</button>
+
+    <div id="timer-msg">正在准备卡片...</div>
+
+    <div class="card-container">
+        <div class="card">
+            <div id="front-side">
+                <div class="hint-area" id="icon-display"></div>
+                <div class="chinese-hint" id="cn-display"></div>
+                <button class="btn btn-flip" id="flip-btn" onclick="showBack()">🔄 查看背面的单词</button>
+            </div>
+
+            <div id="back-side">
+                <div class="quiz-word" id="word-hint"></div>
+                <input type="text" id="wordInput" placeholder="拼写这个单词..." oninput="checkInput(event)">
+                
+                <div id="audio-controls" style="margin-top:20px; display:none; justify-content: center;">
+                    <button class="btn btn-audio" onclick="speak('en-GB')">英音 🇬🇧</button>
+                    <button class="btn btn-audio" onclick="speak('en-US')">美音 🇺🇸</button>
+                </div>
+            </div>
+
+            <button id="next-btn" class="btn btn-next" onclick="nextCard()">🌟 太棒了！下一张</button>
+        </div>
     </div>
 
     <script>
-        const wordLib = [
-            { word: "Apple", hint: "A _ _ _ e", icon: "🍎" },
-            { word: "Banana", hint: "B _ _ _ _ a", icon: "🍌" },
-            { word: "Father", hint: "F _ _ _ _ r", icon: "👨" },
-            { word: "Mother", hint: "M _ _ _ _ r", icon: "👩" },
-            { word: "Brother", hint: "B _ _ _ _ _ r", icon: "👦" },
-            { word: "Sister", hint: "S _ _ _ _ r", icon: "👧" },
-            { word: "They", hint: "T _ _ y", icon: "👨‍👩‍👧‍👦" },
-            { word: "This", hint: "T _ _ s", icon: "👉" }
+        // 扩充后的词库
+                const wordLib = [
+            // --- 颜色 (Colors) ---
+            { en: "Red", cn: "红色", icon: "❤️" },
+            { en: "Blue", cn: "蓝色", icon: "💙" },
+            { en: "Yellow", cn: "黄色", icon: "💛" },
+            { en: "Green", cn: "绿色", icon: "💚" },
+            { en: "Orange", cn: "橙色", icon: "🧡" },
+            { en: "Purple", cn: "紫色", icon: "💜" },
+            { en: "Pink", cn: "粉红色", icon: "💗" },
+            { en: "Black", cn: "黑色", icon: "🖤" },
+            { en: "White", cn: "白色", icon: "🤍" },
+            { en: "Brown", cn: "棕色/褐色", icon: "🤎" },
+
+            // --- 亲属关系补全 (Extended Family) ---
+            { en: "Nephew", cn: "侄子/外甥", icon: "👦" },
+            { en: "Niece", cn: "侄女/外甥女", icon: "👧" },
+            { en: "Husband", cn: "丈夫", icon: "🤵" },
+            { en: "Wife", cn: "妻子", icon: "👰" },
+            { en: "Parent", cn: "家长/父母", icon: "👪" },
+            
+            // --- 之前的动植物和数字保持不变即可 ---
+            { en: "Cat", cn: "小猫", icon: "🐱" },
+            { en: "Dog", cn: "小狗", icon: "🐶" },
+            { en: "One", cn: "1", icon: "1️⃣" }
+            // ... 后面的可以以此类推
         ];
+
 
         let index = 0;
 
         function lock() {
-            const btns = document.querySelectorAll('button, input');
-            btns.forEach(b => b.disabled = true);
+            const flipBtn = document.getElementById('flip-btn');
+            flipBtn.disabled = true;
             let c = 3;
             const m = document.getElementById('timer-msg');
-            m.innerText = `⏳ 观察思考 (${c}s)`;
-            const t = setInterval(() => {
+            const timer = setInterval(() => {
                 c--;
-                if(c>0) m.innerText = `⏳ 观察思考 (${c}s)`;
-                else { m.innerText = "✅ 可以操作了"; btns.forEach(b => b.disabled = false); clearInterval(t); }
+                if(c > 0) m.innerText = `⏳ 观察正面提示 (${c}s)`;
+                else {
+                    m.innerText = "✅ 可以翻面了";
+                    flipBtn.disabled = false;
+                    clearInterval(timer);
+                }
             }, 1000);
+        }
+
+        function showBack() {
+            document.getElementById('flip-btn').style.display = 'none';
+            document.getElementById('word-hint').classList.add('show');
+            document.getElementById('wordInput').classList.add('show');
+            document.getElementById('audio-controls').style.display = 'flex';
+            document.getElementById('wordInput').focus();
+        }
+
+        function checkInput(e) {
+            const val = e.target.value.toLowerCase().trim();
+            const target = wordLib[index].en.toLowerCase();
+            const nextBtn = document.getElementById('next-btn');
+
+            if (val === target) {
+                e.target.classList.add('correct');
+                nextBtn.style.display = 'block';
+                speak('en-GB'); 
+            } else {
+                e.target.classList.remove('correct');
+                nextBtn.style.display = 'none';
+            }
         }
 
         function speak(lang) {
             window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(wordLib[index].word);
+            const u = new SpeechSynthesisUtterance(wordLib[index].en);
             u.lang = lang;
             u.rate = 0.8;
             window.speechSynthesis.speak(u);
@@ -64,19 +138,31 @@
 
         function render() {
             const item = wordLib[index];
-            document.getElementById('content').innerHTML = `
-                <span class="emoji-display">${item.icon}</span>
-                <div class="quiz-word">${item.hint}</div>
-                <input type="text" placeholder="拼写一下...">
-                <div style="margin-top:20px">
-                    <button class="btn btn-uk" onclick="speak('en-GB')">英音 (UK)</button>
-                    <button class="btn btn-us" onclick="speak('en-US')">美音 (US)</button>
-                </div>
-            `;
+            // 刷新正面
+            document.getElementById('icon-display').innerText = item.icon;
+            document.getElementById('cn-display').innerText = item.cn;
+            
+            // 刷新背面（初始隐藏）
+            const hint = item.en[0] + " _ ".repeat(item.en.length - 2) + item.en.slice(-1);
+            document.getElementById('word-hint').innerText = hint;
+            document.getElementById('word-hint').classList.remove('show');
+            
+            const input = document.getElementById('wordInput');
+            input.value = "";
+            input.classList.remove('show', 'correct');
+            
+            document.getElementById('flip-btn').style.display = 'block';
+            document.getElementById('audio-controls').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
             lock();
         }
 
-        function nextWord() { index = (index + 1) % wordLib.length; render(); }
+        function nextCard() {
+            index = (index + 1) % wordLib.length;
+            render();
+        }
+
         window.onload = render;
     </script>
 </body>
