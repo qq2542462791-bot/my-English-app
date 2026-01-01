@@ -3,86 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADHD 友好英语学习助手</title>
+    <title>英语助手-稳定修复版</title>
     <style>
         :root { --primary: #4a90e2; --bg: #f5f7fa; }
-        body { font-family: sans-serif; background: var(--bg); padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); width: 90%; max-width: 600px; text-align: center; }
-        /* 关键：图片样式 */
-        .word-img { width: 100%; height: 250px; border-radius: 15px; object-fit: cover; margin-bottom: 20px; background: #eee; }
-        .quiz-word { font-size: 40px; letter-spacing: 8px; margin: 20px 0; color: var(--primary); font-weight: bold; }
-        .btn { padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: bold; margin: 10px; }
-        .btn-uk { background: #e74c3c; color: white; }
-        .btn-us { background: #3498db; color: white; }
+        body { font-family: sans-serif; background: var(--bg); padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); width: 95%; max-width: 600px; text-align: center; }
+        /* 修复图片显示问题 */
+        .word-img { width: 100%; height: 220px; border-radius: 15px; object-fit: contain; margin-bottom: 15px; background: #fff; border: 1px solid #eee; }
+        .quiz-word { font-size: 40px; letter-spacing: 8px; margin: 15px 0; color: var(--primary); font-weight: bold; }
+        .btn { padding: 15px 25px; border: none; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: bold; margin: 8px; color: white; }
+        .btn-uk { background: #e74c3c; } /* 红色代表英国 */
+        .btn-us { background: #3498db; } /* 蓝色代表美国 */
         button:disabled { background: #ccc !important; opacity: 0.6; }
-        input { font-size: 24px; padding: 10px; width: 80%; border: 2px solid #ddd; border-radius: 10px; text-align: center; }
-        #timer-msg { color: #e67e22; font-weight: bold; height: 30px; margin-bottom: 10px; }
-        .nav-btn { background: #eee; padding: 10px; margin: 5px; border-radius: 5px; cursor: pointer; }
+        input { font-size: 24px; padding: 12px; width: 85%; border: 2px solid #ddd; border-radius: 10px; text-align: center; }
+        #timer-msg { color: #e67e22; font-weight: bold; margin-bottom: 10px; min-height: 24px; font-size: 18px; }
+        .nav-btn { background: #2ecc71; width: 100%; margin-top: 20px; }
     </style>
 </head>
 <body>
+
     <div class="card">
         <div id="timer-msg">正在准备...</div>
         <div id="content">
             </div>
-        <div style="margin-top:20px; border-top: 1px solid #eee; padding-top:10px;">
-            <button class="nav-btn" onclick="nextWord()">下一个词</button>
-        </div>
     </div>
 
     <script>
-        // 词库：你可以随时增加
-        const words = [
-            { word: "Apple", hint: "A _ _ _ e", img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6bccb?w=500" },
-            { word: "Banana", hint: "B _ _ _ _ a", img: "https://images.unsplash.com/photo-1571771894821-ad99024157c7?w=500" },
-            { word: "Father", hint: "F _ _ _ _ r", img: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=500" }
+        // 词库 - 换用了更稳定的图片源 (Pixabay/Wikimedia)
+        const wordLib = [
+            { word: "Apple", hint: "A _ _ _ e", img: "https://cdn.pixabay.com/photo/2016/01/05/17/04/apple-1122537_1280.jpg" },
+            { word: "Banana", hint: "B _ _ _ _ a", img: "https://cdn.pixabay.com/photo/2016/01/02/16/59/bananas-1118185_1280.jpg" },
+            { word: "Father", hint: "F _ _ _ _ r", img: "https://cdn.pixabay.com/photo/2016/11/21/14/53/man-1845814_1280.jpg" }
         ];
 
-        let index = 0;
+        let currentIndex = 0;
 
         function lockButtons() {
             const btns = document.querySelectorAll('button, input');
             const msg = document.getElementById('timer-msg');
             btns.forEach(b => b.disabled = true);
             let count = 3;
-            msg.innerText = `⏳ 观察图片和单词 (${count}s)`;
+            msg.innerText = `⏳ 观察图片和拼写 (${count}s)`;
             const timer = setInterval(() => {
                 count--;
-                if(count > 0) { msg.innerText = `⏳ 观察图片和单词 (${count}s)`; }
-                else { 
-                    msg.innerText = "✅ 现在可以操作了"; 
+                if(count > 0) msg.innerText = `⏳ 观察图片和拼写 (${count}s)`;
+                else {
+                    msg.innerText = "✅ 请开始尝试";
                     btns.forEach(b => b.disabled = false);
                     clearInterval(timer);
                 }
             }, 1000);
         }
 
+        // 核心修复：发音逻辑优化
         function speak(lang) {
-            const utter = new SpeechSynthesisUtterance(words[index].word);
+            const text = wordLib[currentIndex].word;
+            window.speechSynthesis.cancel(); // 先停止之前的声音
+            const utter = new SpeechSynthesisUtterance(text);
+            
+            // 获取系统所有声音
+            const voices = window.speechSynthesis.getVoices();
+            
+            // 尝试精准匹配英国或美国口音
+            if (lang === 'en-GB') {
+                utter.voice = voices.find(v => v.lang.includes('GB') || v.name.includes('UK')) || voices[0];
+                utter.pitch = 0.9; // 稍微调低音调模拟英音沉稳
+            } else {
+                utter.voice = voices.find(v => v.lang.includes('US')) || voices[0];
+                utter.pitch = 1.1; // 稍微调高音调模拟美音上扬
+            }
+            
             utter.lang = lang;
+            utter.rate = 0.8; // 稍微放慢速度，让孩子听得更清楚
             window.speechSynthesis.speak(utter);
         }
 
         function render() {
-            const item = words[index];
+            const item = wordLib[currentIndex];
             document.getElementById('content').innerHTML = `
-                <img src="${item.img}" class="word-img" alt="loading...">
+                <img src="${item.img}" class="word-img" onerror="this.src='https://via.placeholder.com/300?text=Image+Loading...'">
                 <div class="quiz-word">${item.hint}</div>
-                <input type="text" placeholder="填入缺失字母">
+                <input type="text" placeholder="在这里输入...">
                 <div style="margin-top:20px">
-                    <button class="btn btn-uk" onclick="speak('en-GB')">英音 (UK)</button>
-                    <button class="btn btn-us" onclick="speak('en-US')">美音 (US)</button>
+                    <button class="btn btn-uk" onclick="speak('en-GB')">英式发音 (UK)</button>
+                    <button class="btn btn-us" onclick="speak('en-US')">美式发音 (US)</button>
                 </div>
+                <button class="btn nav-btn" onclick="nextWord()">换一个单词</button>
             `;
             lockButtons();
         }
 
         function nextWord() {
-            index = (index + 1) % words.length;
+            currentIndex = (currentIndex + 1) % wordLib.length;
             render();
         }
 
+        // 预加载声音（针对 iOS 优化）
+        window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
         window.onload = render;
     </script>
 </body>
 </html>
+
