@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADHD 友好英语学习助手</title>
+    <style>
+        :root { --primary: #4a90e2; --bg: #f5f7fa; --text: #333; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); width: 90%; max-width: 600px; text-align: center; }
+        .btn { padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: bold; margin: 10px; transition: 0.3s; }
+        .btn:disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.6; }
+        .btn-uk { background: #e74c3c; color: white; }
+        .btn-us { background: #3498db; color: white; }
+        .phonetic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-top: 20px; }
+        .p-item { background: #fff; border: 2px solid #eee; padding: 15px; border-radius: 10px; cursor: pointer; }
+        .p-item:hover { border-color: var(--primary); }
+        .quiz-word { font-size: 40px; letter-spacing: 8px; margin: 30px 0; color: var(--primary); }
+        input { font-size: 24px; padding: 10px; width: 80%; border: 2px solid #ddd; border-radius: 10px; text-align: center; }
+        #timer-msg { color: #e67e22; font-weight: bold; height: 24px; }
+    </style>
+</head>
+<body>
+    <div id="app" class="card">
+        <h1>英语学习助手</h1>
+        <div id="timer-msg">正在加载...</div>
+        <div id="content">
+            </div>
+    </div>
+
+    <script>
+        const state = { currentWord: "Apple", hint: "A _ _ _ e", translation: "苹果" };
+
+        function lockButtons() {
+            const btns = document.querySelectorAll('button');
+            const msg = document.getElementById('timer-msg');
+            btns.forEach(b => b.disabled = true);
+            let count = 3;
+            msg.innerText = `请先观察思考 (${count}s)`;
+            const timer = setInterval(() => {
+                count--;
+                if(count > 0) { msg.innerText = `请先观察思考 (${count}s)`; }
+                else { 
+                    msg.innerText = "现在可以操作了"; 
+                    btns.forEach(b => b.disabled = false);
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+
+        function speak(lang) {
+            const utter = new SpeechSynthesisUtterance(state.currentWord);
+            utter.lang = lang; // en-GB 或 en-US
+            window.speechSynthesis.speak(utter);
+        }
+
+        function showQuiz() {
+            document.getElementById('content').innerHTML = `
+                <div class="quiz-word">${state.hint}</div>
+                <input type="text" id="userInput" placeholder="输入缺失字母">
+                <div style="margin-top:20px">
+                    <button class="btn btn-uk" onclick="speak('en-GB')">英式发音 (UK)</button>
+                    <button class="btn btn-us" onclick="speak('en-US')">美式发音 (US)</button>
+                </div>
+            `;
+            lockButtons();
+        }
+
+        window.onload = showQuiz;
+    </script>
+</body>
+</html>
