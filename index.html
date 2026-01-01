@@ -59,31 +59,62 @@
 
     <script>
         // 扩充后的词库
-                const wordLib = [
+                        const wordLib = [
             // --- 颜色 (Colors) ---
             { en: "Red", cn: "红色", icon: "❤️" },
             { en: "Blue", cn: "蓝色", icon: "💙" },
             { en: "Yellow", cn: "黄色", icon: "💛" },
             { en: "Green", cn: "绿色", icon: "💚" },
-            { en: "Orange", cn: "橙色", icon: "🧡" },
             { en: "Purple", cn: "紫色", icon: "💜" },
-            { en: "Pink", cn: "粉红色", icon: "💗" },
+            { en: "Orange", cn: "橙色", icon: "🧡" },
+            { en: "Pink", cn: "粉色", icon: "💗" },
             { en: "Black", cn: "黑色", icon: "🖤" },
             { en: "White", cn: "白色", icon: "🤍" },
-            { en: "Brown", cn: "棕色/褐色", icon: "🤎" },
 
-            // --- 亲属关系补全 (Extended Family) ---
+            // --- 亲属关系全家桶 (Full Family) ---
+            { en: "Father", cn: "爸爸", icon: "👨" },
+            { en: "Mother", cn: "妈妈", icon: "👩" },
+            { en: "Grandpa", cn: "爷爷/外公", icon: "👴" },
+            { en: "Grandma", cn: "奶奶/外婆", icon: "👵" },
+            { en: "Brother", cn: "兄弟", icon: "👦" },
+            { en: "Sister", cn: "姐妹", icon: "👧" },
+            { en: "Uncle", cn: "叔/舅/伯", icon: "👨‍🦰" },
+            { en: "Aunt", cn: "姨/姑/婶", icon: "👩‍🦱" },
+            { en: "Cousin", cn: "堂表亲", icon: "🧑‍🤝‍🧑" },
             { en: "Nephew", cn: "侄子/外甥", icon: "👦" },
             { en: "Niece", cn: "侄女/外甥女", icon: "👧" },
-            { en: "Husband", cn: "丈夫", icon: "🤵" },
-            { en: "Wife", cn: "妻子", icon: "👰" },
-            { en: "Parent", cn: "家长/父母", icon: "👪" },
-            
-            // --- 之前的动植物和数字保持不变即可 ---
-            { en: "Cat", cn: "小猫", icon: "🐱" },
-            { en: "Dog", cn: "小狗", icon: "🐶" },
-            { en: "One", cn: "1", icon: "1️⃣" }
-            // ... 后面的可以以此类推
+            { en: "Son", cn: "儿子", icon: "👶" },
+            { en: "Daughter", cn: "女儿", icon: "👧" },
+
+            // --- 动物 (Animals) ---
+            { en: "Cat", cn: "猫", icon: "🐱" },
+            { en: "Dog", cn: "狗", icon: "🐶" },
+            { en: "Rabbit", cn: "兔子", icon: "🐰" },
+            { en: "Lion", cn: "狮子", icon: "🦁" },
+            { en: "Tiger", cn: "老虎", icon: "🐯" },
+            { en: "Elephant", cn: "大象", icon: "🐘" },
+            { en: "Monkey", cn: "猴子", icon: "🐒" },
+            { en: "Panda", cn: "熊猫", icon: "🐼" },
+
+            // --- 植物与水果 (Plants & Fruits) ---
+            { en: "Apple", cn: "苹果", icon: "🍎" },
+            { en: "Banana", cn: "香蕉", icon: "🍌" },
+            { en: "Watermelon", cn: "西瓜", icon: "🍉" },
+            { en: "Grape", cn: "葡萄", icon: "🍇" },
+            { en: "Flower", cn: "花", icon: "🌸" },
+            { en: "Tree", cn: "树", icon: "🌳" },
+
+            // --- 数字 (Numbers) ---
+            { en: "One", cn: "1", icon: "1️⃣" },
+            { en: "Two", cn: "2", icon: "2️⃣" },
+            { en: "Three", cn: "3", icon: "3️⃣" },
+            { en: "Four", cn: "4", icon: "4️⃣" },
+            { en: "Five", cn: "5", icon: "5️⃣" },
+            { en: "Six", cn: "6", icon: "6️⃣" },
+            { en: "Seven", cn: "7", icon: "7️⃣" },
+            { en: "Eight", cn: "8", icon: "8️⃣" },
+            { en: "Nine", cn: "9", icon: "9️⃣" },
+            { en: "Ten", cn: "10", icon: "🔟" }
         ];
 
 
