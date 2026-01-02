@@ -3,124 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gem家属专属-全功能特训App</title>
+    <title>Gem家属专属-自主寻宝版</title>
     <style>
         :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f8f9fa; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 15px; margin: 0; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 15px; margin: 0; }
         .header { width: 95%; max-width: 400px; margin-bottom: 10px; }
-        #progress-tag { background: white; padding: 10px; border-radius: 15px; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; line-height: 1.5; color: #666; }
-        #timer-msg { color: #e67e22; font-weight: bold; text-align: center; margin-top: 5px; height: 20px; font-size: 14px; }
-        .card { background: white; border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; min-height: 520px; display: flex; flex-direction: column; justify-content: space-between; }
-        .hint-area { font-size: 70px; margin: 10px 0; }
-        .chinese-hint { font-size: 32px; color: #2c3e50; font-weight: bold; }
-        .ipa { font-size: 18px; color: #7f8c8d; margin-bottom: 5px; }
+        #progress-tag { background: white; padding: 10px; border-radius: 15px; font-size: 13px; text-align: center; color: #666; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card { background: white; border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; min-height: 550px; display: flex; flex-direction: column; justify-content: space-between; }
+        .chinese-hint { font-size: 32px; color: #2c3e50; font-weight: bold; margin: 10px 0; }
         .quiz-word { font-size: 32px; letter-spacing: 5px; color: var(--primary); font-weight: bold; min-height: 45px; }
-        input { font-size: 24px; padding: 12px; width: 85%; border: 3px solid #eee; border-radius: 12px; text-align: center; outline: none; transition: 0.3s; }
-        input.wrong { border-color: var(--error); background-color: #fff5f5; animation: shake 0.3s; }
-        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
-        .sentence-container { display: flex; align-items: center; background: #f1f7ff; padding: 12px; border-radius: 15px; margin-top: 15px; border-left: 5px solid var(--primary); text-align: left; }
-        .sentence-text { font-size: 16px; color: #444; flex: 1; margin-right: 8px; line-height: 1.4; }
-        .btn-speak-sentence { background: var(--primary); color: white; border: none; border-radius: 50%; width: 38px; height: 38px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-        .btn { padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-size: 18px; font-weight: bold; margin: 5px; color: white; }
-        .btn-audio { background: #9b59b6; flex: 1; }
-        .btn-flip { background: var(--primary); width: 100%; }
+        input { font-size: 24px; padding: 12px; width: 85%; border: 3px solid #eee; border-radius: 12px; text-align: center; outline: none; }
+        input.wrong { border-color: var(--error); background: #fff5f5; }
+        
+        /* 干扰项区域 */
+        #choice-area { display: none; margin-top: 15px; background: #fff3e0; padding: 15px; border-radius: 15px; border: 2px dashed #ffb74d; }
+        .choice-btn { background: white; border: 2px solid #ffb74d; padding: 10px; margin: 5px; border-radius: 10px; font-size: 18px; cursor: pointer; display: inline-block; width: 80%; }
+        
+        .sentence-container { display: flex; align-items: center; background: #f1f7ff; padding: 10px; border-radius: 12px; margin: 10px 0; text-align: left; }
+        .btn-speak { background: var(--primary); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; flex-shrink: 0; }
+        .btn { padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-size: 18px; font-weight: bold; color: white; }
         .btn-submit { background: #34495e; width: 100%; margin-top: 10px; }
-        .btn-next { background: var(--success); width: 100%; margin-top: 10px; display: none; }
-        button:disabled { background: #ccc !important; }
+        .btn-next { background: var(--success); width: 100%; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div id="progress-tag">同步笔记中...</div>
-        <div id="timer-msg"></div>
-    </div>
+    <div class="header"><div id="progress-tag">加载词库中...</div><div id="timer-msg" style="text-align:center;color:#e67e22;font-weight:bold;height:20px;"></div></div>
 
     <div class="card">
         <div id="front-side">
-            <div class="hint-area" id="icon-display"></div>
+            <div style="font-size:70px;" id="icon-display"></div>
             <div class="chinese-hint" id="cn-display"></div>
-            <button class="btn btn-flip" id="flip-btn" onclick="showBack()">🔄 挑战拼写</button>
+            <button class="btn" style="background:var(--primary);width:100%" id="flip-btn" onclick="showBack()">🔄 准备挑战</button>
         </div>
 
         <div id="back-side" style="display:none">
-            <div class="ipa" id="ipa-display"></div>
+            <div id="ipa-display" style="color:#7f8c8d;margin-bottom:5px;"></div>
             <div class="quiz-word" id="word-hint"></div>
-            <input type="text" id="wordInput" placeholder="输入单词后提交" autocomplete="off" spellcheck="false">
-            <div class="sentence-container">
-                <div id="sentence-box" class="sentence-text"></div>
-                <button class="btn-speak-sentence" onclick="speakSentence()">🔊</button>
+            <input type="text" id="wordInput" placeholder="请输入单词" autocomplete="off" spellcheck="false">
+            
+            <div id="choice-area">
+                <p style="margin:0 0 10px 0; color:#e67e22; font-weight:bold;">别急，从下面找出正确的词：</p>
+                <div id="choices-list"></div>
             </div>
-            <div style="margin-top:15px; display:flex; gap:10px;">
-                <button class="btn btn-audio" onclick="speakWord('en-GB')">🇬🇧 英音</button>
-                <button class="btn btn-audio" onclick="speakWord('en-US')">🇺🇸 美音</button>
+
+            <div class="sentence-container">
+                <div id="sentence-box" style="flex:1; font-size:15px;"></div>
+                <button class="btn-speak" onclick="speak('sentence')">🔊</button>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" style="background:#9b59b6;flex:1;" onclick="speak('word-gb')">🇬🇧 英</button>
+                <button class="btn" style="background:#9b59b6;flex:1;" onclick="speak('word-us')">🇺🇸 美</button>
             </div>
             <button id="submit-btn" class="btn btn-submit" onclick="submitAnswer()">确认提交</button>
         </div>
-        <button id="next-btn" class="btn btn-next" onclick="handleNext()">🌟 正确！继续下一个</button>
+        <button id="next-btn" class="btn btn-next" onclick="handleNext()">🌟 正确！下一个</button>
     </div>
 
     <script>
-        // --- 全量整合词库（Gem笔记内容） ---
         const originalLib = [
-            // 第一部分：高频必考词 (Priority)
-            { en: "What", ipa: "/wɒt/", cn: "什么", icon: "❓", sentence: "What is this?", priority: true },
+            // 全量提炼自笔记：疑问、代词、方位、动作
+            { en: "What", ipa: "/wɒt/", cn: "什么", icon: "❓", sentence: "What is your name?", priority: true },
             { en: "How", ipa: "/haʊ/", cn: "怎样", icon: "🛠️", sentence: "How are you?", priority: true },
-            { en: "Can", ipa: "/kæn/", cn: "能", icon: "💪", sentence: "I can sing.", priority: true },
-            { en: "In", ipa: "/ɪn/", cn: "在...里", icon: "📦", sentence: "It is in the box.", priority: true },
-            { en: "On", ipa: "/ɒn/", cn: "在...上", icon: "🔝", sentence: "It is on the desk.", priority: true },
-            { en: "Under", ipa: "/ˈʌndə/", cn: "在...下", icon: "👇", sentence: "It is under the chair.", priority: true },
-            { en: "With", ipa: "/wɪð/", cn: "和...一起", icon: "👫", sentence: "Play with me.", priority: true },
-            { en: "This", ipa: "/ðɪs/", cn: "这个", icon: "📍", sentence: "This is my duck.", priority: true },
-
-            // 第二部分：核心动词与名词
-            { en: "Read", ipa: "/riːd/", cn: "读", icon: "📖", sentence: "I read a book." },
-            { en: "Write", ipa: "/raɪt/", cn: "写", icon: "✍️", sentence: "You write a word." },
-            { en: "Draw", ipa: "/drɔː/", cn: "画", icon: "🎨", sentence: "I draw a cat." },
-            { en: "Listen", ipa: "/ˈlɪsn/", cn: "听", icon: "👂", sentence: "We listen to music." },
-            { en: "Sing", ipa: "/sɪŋ/", cn: "唱", icon: "🎤", sentence: "They sing a song." },
-            { en: "Jump", ipa: "/dʒʌmp/", cn: "跳", icon: "🦘", sentence: "I jump up and down." },
-            { en: "Hand", ipa: "/hænd/", cn: "手", icon: "✋", sentence: "I have two hands." },
-            { en: "Eye", ipa: "/aɪ/", cn: "眼睛", icon: "👁️", sentence: "She has big eyes." },
-            { en: "Mouth", ipa: "/maʊθ/", cn: "嘴", icon: "👄", sentence: "Open your mouth." },
-            { en: "Good", ipa: "/ɡʊd/", cn: "好的", icon: "👍", sentence: "You are a good boy." },
-            { en: "Small", ipa: "/smɔːl/", cn: "小的", icon: "🖱️", sentence: "It is a small toy." }
+            { en: "Where", ipa: "/weə/", cn: "哪里", icon: "📍", sentence: "Where is the cat?", priority: true },
+            { en: "Who", ipa: "/huː/", cn: "谁", icon: "👤", sentence: "Who is he?", priority: true },
+            { en: "I", ipa: "/aɪ/", cn: "我", icon: "🙋", sentence: "I am a boy." },
+            { en: "You", ipa: "/juː/", cn: "你", icon: "👉", sentence: "You are my friend." },
+            { en: "He", ipa: "/hiː/", cn: "他", icon: "👦", sentence: "He is tall." },
+            { en: "She", ipa: "/ʃiː/", cn: "她", icon: "👧", sentence: "She is happy." },
+            { en: "Behind", ipa: "/bɪˈhaɪnd/", cn: "在...后面", icon: "🔙", sentence: "He is behind the door.", priority: true },
+            { en: "Beside", ipa: "/bɪˈsaɪd/", cn: "在...旁边", icon: "🔜", sentence: "Sit beside me.", priority: true },
+            { en: "Between", ipa: "/bɪˈtwiːn/", cn: "在...之间", icon: "↔️", sentence: "It is between the boxes.", priority: true },
+            { en: "Under", ipa: "/ˈʌndə/", cn: "在...下面", icon: "👇", sentence: "Under the tree." },
+            { en: "Run", ipa: "/rʌn/", cn: "跑", icon: "🏃", sentence: "Run fast!" },
+            { en: "Swim", ipa: "/swɪm/", cn: "游泳", icon: "🏊", sentence: "I can swim." },
+            { en: "Walk", ipa: "/wɔːk/", cn: "走", icon: "🚶", sentence: "Walk to school." },
+            { en: "Fly", ipa: "/flaɪ/", cn: "飞", icon: "✈️", sentence: "Birds can fly." },
+            { en: "This", ipa: "/ðɪs/", cn: "这", icon: "📎", sentence: "This is mine." },
+            { en: "That", ipa: "/ðæt/", cn: "那", icon: "🔭", sentence: "That is yours." },
+            { en: "Open", ipa: "/ˈəʊpən/", cn: "打开", icon: "👐", sentence: "Open the window." },
+            { en: "Close", ipa: "/kləʊz/", cn: "关闭", icon: "🚪", sentence: "Close your eyes." }
         ];
 
-        let wordProgress = JSON.parse(localStorage.getItem('gem_final_complete')) || {};
-        originalLib.forEach(w => { if (!wordProgress[w.en]) wordProgress[w.en] = { level: 0, lastDate: 0 }; });
+        let wordProgress = JSON.parse(localStorage.getItem('gem_pro_v1')) || {};
+        originalLib.forEach(w => { if(!wordProgress[w.en]) wordProgress[w.en] = { level: 0, lastDate: 0 }; });
 
-        const oneDay = 24 * 60 * 60 * 1000;
         let todayLib = originalLib.filter(w => {
-            if (w.priority) return true;
+            if(w.priority) return true;
             let p = wordProgress[w.en];
             const now = Date.now();
-            if (p.level === 0) return true;
-            if (p.level === 1 && now - p.lastDate > oneDay) return true;
-            if (p.level === 2 && now - p.lastDate > 6 * oneDay) return true;
-            return false;
-        });
+            return p.level === 0 || (p.level === 1 && now - p.lastDate > 86400000);
+        }).sort((a,b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
 
-        todayLib.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
-        let currentPool = todayLib.length > 0 ? [...todayLib] : [];
-        let wrongWords = [];
-        let index = 0;
-        let hasLooked = false;
-
-        function lock() {
-            const fb = document.getElementById('flip-btn');
-            fb.disabled = true;
-            let c = 3;
-            const tm = document.getElementById('timer-msg');
-            const t = setInterval(() => {
-                c--;
-                if(c>0) tm.innerText = `⏳ 观察思考中 (${c}s)`;
-                else { tm.innerText = "✅ 思考完成，请挑战"; fb.disabled = false; clearInterval(t); }
-            }, 1000);
-        }
+        let currentPool = [...todayLib], wrongWords = [], index = 0, hasLooked = false;
 
         function showBack() {
-            hasLooked = true;
             document.getElementById('front-side').style.display = 'none';
             document.getElementById('back-side').style.display = 'block';
             document.getElementById('wordInput').focus();
@@ -130,16 +107,45 @@
             const input = document.getElementById('wordInput');
             const userVal = input.value.toLowerCase().trim();
             const correctVal = currentPool[index].en.toLowerCase();
+
             if (userVal === correctVal) {
                 input.classList.remove('wrong');
                 document.getElementById('submit-btn').style.display = 'none';
                 document.getElementById('next-btn').style.display = 'block';
-                speakWord('en-GB');
+                document.getElementById('choice-area').style.display = 'none';
+                speak('word-gb');
             } else {
                 input.classList.add('wrong');
-                alert("拼错啦！别担心，这个词会加入重练清单，等下再试一次。");
+                showChoices(); // 触发“寻宝”逻辑
                 hasLooked = true;
             }
+        }
+
+        function showChoices() {
+            const area = document.getElementById('choice-area');
+            const list = document.getElementById('choices-list');
+            area.style.display = 'block';
+            list.innerHTML = "";
+            
+            // 生成随机干扰项
+            let choices = [currentPool[index].en];
+            while(choices.length < 3) {
+                let randomWord = originalLib[Math.floor(Math.random()*originalLib.length)].en;
+                if(!choices.includes(randomWord)) choices.push(randomWord);
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            choices.forEach(c => {
+                let btn = document.createElement('button');
+                btn.className = "choice-btn";
+                btn.innerText = c;
+                btn.onclick = () => {
+                    alert("找到了！现在请在输入框里把它拼写出来。");
+                    document.getElementById('wordInput').value = "";
+                    document.getElementById('wordInput').focus();
+                };
+                list.appendChild(btn);
+            });
         }
 
         function handleNext() {
@@ -151,62 +157,51 @@
                 wordProgress[currentWord].level += 1;
                 wordProgress[currentWord].lastDate = Date.now();
             }
-            localStorage.setItem('gem_final_complete', JSON.stringify(wordProgress));
+            localStorage.setItem('gem_pro_v1', JSON.stringify(wordProgress));
             index++;
             if (index >= currentPool.length) {
                 if (wrongWords.length > 0) {
-                    alert(`第一轮结束！开始重练刚才的 ${wrongWords.length} 个单词。`);
-                    currentPool = [...wrongWords];
-                    wrongWords = [];
-                    index = 0;
+                    currentPool = [...wrongWords]; wrongWords = []; index = 0;
+                    alert("复习开始！把刚才没认出来的词再练一遍。");
                 } else {
-                    alert("🎉 任务圆满完成！");
-                    location.reload();
-                    return;
+                    alert("🎉 太棒了！今天全部通关！");
+                    location.reload(); return;
                 }
             }
             render();
         }
 
-        function speakWord(lang) {
+        function speak(type) {
             window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(currentPool[index].en);
-            u.lang = lang; u.rate = 0.75;
-            window.speechSynthesis.speak(u);
-        }
-
-        function speakSentence() {
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(currentPool[index].sentence);
-            u.lang = 'en-US'; u.rate = 0.75;
-            window.speechSynthesis.speak(u);
+            let text = type === 'sentence' ? currentPool[index].sentence : currentPool[index].en;
+            let u = new SpeechSynthesisUtterance(text);
+            u.lang = type === 'word-gb' ? 'en-GB' : 'en-US';
+            u.rate = 0.7; window.speechSynthesis.speak(u);
         }
 
         function render() {
-            if (currentPool.length === 0) {
-                document.body.innerHTML = "<div class='card' style='justify-content:center'><h1>🌟 任务已完成</h1><p>明天再来吧！</p></div>";
-                return;
-            }
+            if (currentPool.length === 0) { document.body.innerHTML = "<h1>完成</h1>"; return; }
             const item = currentPool[index];
             hasLooked = false;
-            document.getElementById('progress-tag').innerHTML = `今日待完成：${currentPool.length - index} | 需重练：${wrongWords.length}`;
+            document.getElementById('progress-tag').innerText = `剩余: ${currentPool.length - index} | 待重练: ${wrongWords.length}`;
             document.getElementById('icon-display').innerText = item.icon;
             document.getElementById('cn-display').innerText = item.cn;
-            document.getElementById('ipa-display').innerText = item.ipa || "";
-            document.getElementById('sentence-box').innerText = item.sentence || "";
+            document.getElementById('ipa-display').innerText = item.ipa;
+            document.getElementById('sentence-box').innerText = item.sentence;
             document.getElementById('word-hint').innerText = item.en[0] + " _ ".repeat(item.en.length - 2) + item.en.slice(-1);
-            const input = document.getElementById('wordInput');
-            input.value = ""; input.classList.remove('wrong');
+            document.getElementById('wordInput').value = "";
+            document.getElementById('wordInput').classList.remove('wrong');
+            document.getElementById('choice-area').style.display = 'none';
             document.getElementById('front-side').style.display = 'block';
             document.getElementById('back-side').style.display = 'none';
             document.getElementById('submit-btn').style.display = 'block';
             document.getElementById('next-btn').style.display = 'none';
-            lock();
         }
         window.onload = render;
     </script>
 </body>
 </html>
+
 
 
 
