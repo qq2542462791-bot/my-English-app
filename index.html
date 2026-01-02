@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gem家属专属-自主寻宝版</title>
+    <title>Gem家属专属-超慢速高清语音版</title>
     <style>
         :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f8f9fa; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 15px; margin: 0; }
@@ -15,12 +15,11 @@
         input { font-size: 24px; padding: 12px; width: 85%; border: 3px solid #eee; border-radius: 12px; text-align: center; outline: none; }
         input.wrong { border-color: var(--error); background: #fff5f5; }
         
-        /* 干扰项区域 */
         #choice-area { display: none; margin-top: 15px; background: #fff3e0; padding: 15px; border-radius: 15px; border: 2px dashed #ffb74d; }
         .choice-btn { background: white; border: 2px solid #ffb74d; padding: 10px; margin: 5px; border-radius: 10px; font-size: 18px; cursor: pointer; display: inline-block; width: 80%; }
         
         .sentence-container { display: flex; align-items: center; background: #f1f7ff; padding: 10px; border-radius: 12px; margin: 10px 0; text-align: left; }
-        .btn-speak { background: var(--primary); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; flex-shrink: 0; }
+        .btn-speak { background: var(--primary); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; flex-shrink: 0; font-size: 20px; box-shadow: 0 4px 10px rgba(74,144,226,0.3); }
         .btn { padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-size: 18px; font-weight: bold; color: white; }
         .btn-submit { background: #34495e; width: 100%; margin-top: 10px; }
         .btn-next { background: var(--success); width: 100%; display: none; }
@@ -28,7 +27,7 @@
 </head>
 <body>
 
-    <div class="header"><div id="progress-tag">加载词库中...</div><div id="timer-msg" style="text-align:center;color:#e67e22;font-weight:bold;height:20px;"></div></div>
+    <div class="header"><div id="progress-tag">语音引擎已重置...</div><div id="timer-msg" style="text-align:center;color:#e67e22;font-weight:bold;height:20px;"></div></div>
 
     <div class="card">
         <div id="front-side">
@@ -48,7 +47,7 @@
             </div>
 
             <div class="sentence-container">
-                <div id="sentence-box" style="flex:1; font-size:15px;"></div>
+                <div id="sentence-box" style="flex:1; font-size:15px; color:#2c3e50; line-height:1.5;"></div>
                 <button class="btn-speak" onclick="speak('sentence')">🔊</button>
             </div>
             <div style="display:flex; gap:10px;">
@@ -61,8 +60,8 @@
     </div>
 
     <script>
+        // --- 完整词库同步 ---
         const originalLib = [
-            // 全量提炼自笔记：疑问、代词、方位、动作
             { en: "What", ipa: "/wɒt/", cn: "什么", icon: "❓", sentence: "What is your name?", priority: true },
             { en: "How", ipa: "/haʊ/", cn: "怎样", icon: "🛠️", sentence: "How are you?", priority: true },
             { en: "Where", ipa: "/weə/", cn: "哪里", icon: "📍", sentence: "Where is the cat?", priority: true },
@@ -85,7 +84,7 @@
             { en: "Close", ipa: "/kləʊz/", cn: "关闭", icon: "🚪", sentence: "Close your eyes." }
         ];
 
-        let wordProgress = JSON.parse(localStorage.getItem('gem_pro_v1')) || {};
+        let wordProgress = JSON.parse(localStorage.getItem('gem_pro_v2')) || {};
         originalLib.forEach(w => { if(!wordProgress[w.en]) wordProgress[w.en] = { level: 0, lastDate: 0 }; });
 
         let todayLib = originalLib.filter(w => {
@@ -107,7 +106,6 @@
             const input = document.getElementById('wordInput');
             const userVal = input.value.toLowerCase().trim();
             const correctVal = currentPool[index].en.toLowerCase();
-
             if (userVal === correctVal) {
                 input.classList.remove('wrong');
                 document.getElementById('submit-btn').style.display = 'none';
@@ -116,7 +114,7 @@
                 speak('word-gb');
             } else {
                 input.classList.add('wrong');
-                showChoices(); // 触发“寻宝”逻辑
+                showChoices();
                 hasLooked = true;
             }
         }
@@ -126,21 +124,17 @@
             const list = document.getElementById('choices-list');
             area.style.display = 'block';
             list.innerHTML = "";
-            
-            // 生成随机干扰项
             let choices = [currentPool[index].en];
             while(choices.length < 3) {
                 let randomWord = originalLib[Math.floor(Math.random()*originalLib.length)].en;
                 if(!choices.includes(randomWord)) choices.push(randomWord);
             }
             choices.sort(() => Math.random() - 0.5);
-
             choices.forEach(c => {
                 let btn = document.createElement('button');
                 btn.className = "choice-btn";
                 btn.innerText = c;
                 btn.onclick = () => {
-                    alert("找到了！现在请在输入框里把它拼写出来。");
                     document.getElementById('wordInput').value = "";
                     document.getElementById('wordInput').focus();
                 };
@@ -157,26 +151,40 @@
                 wordProgress[currentWord].level += 1;
                 wordProgress[currentWord].lastDate = Date.now();
             }
-            localStorage.setItem('gem_pro_v1', JSON.stringify(wordProgress));
+            localStorage.setItem('gem_pro_v2', JSON.stringify(wordProgress));
             index++;
             if (index >= currentPool.length) {
                 if (wrongWords.length > 0) {
                     currentPool = [...wrongWords]; wrongWords = []; index = 0;
-                    alert("复习开始！把刚才没认出来的词再练一遍。");
+                    alert("准备好！要把刚才还没记牢的词重练一遍哦。");
                 } else {
-                    alert("🎉 太棒了！今天全部通关！");
+                    alert("🎉 太牛了！今天的任务圆满完成！");
                     location.reload(); return;
                 }
             }
             render();
         }
 
+        // --- 核心修复：更慢、更稳、重置播放 ---
         function speak(type) {
+            // 1. 彻底清除当前所有发音任务，防止堆叠产生杂音
             window.speechSynthesis.cancel();
+
             let text = type === 'sentence' ? currentPool[index].sentence : currentPool[index].en;
             let u = new SpeechSynthesisUtterance(text);
-            u.lang = type === 'word-gb' ? 'en-GB' : 'en-US';
-            u.rate = 0.7; window.speechSynthesis.speak(u);
+            
+            // 2. 根据类型设定语速：例句 0.5 (非常慢)，单词 0.7 (清晰)
+            u.rate = type === 'sentence' ? 0.5 : 0.7;
+            u.pitch = 1.0; // 稳定音高
+            
+            // 3. 设定语言
+            if(type === 'word-gb') u.lang = 'en-GB';
+            else u.lang = 'en-US';
+
+            // 4. 延迟 50ms 播放，给系统释放内存的时间
+            setTimeout(() => {
+                window.speechSynthesis.speak(u);
+            }, 50);
         }
 
         function render() {
@@ -201,6 +209,7 @@
     </script>
 </body>
 </html>
+
 
 
 
