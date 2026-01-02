@@ -3,44 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gem家属专属-智能特训App</title>
+    <title>Gem家属专属-全功能特训App</title>
     <style>
-        :root { --primary: #4a90e2; --success: #2ecc71; --warning: #f39c12; --bg: #f8f9fa; }
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f8f9fa; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 15px; margin: 0; }
-        
-        /* 状态显示栏 */
         .header { width: 95%; max-width: 400px; margin-bottom: 10px; }
         #progress-tag { background: white; padding: 10px; border-radius: 15px; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; line-height: 1.5; color: #666; }
         #timer-msg { color: #e67e22; font-weight: bold; text-align: center; margin-top: 5px; height: 20px; font-size: 14px; }
-
-        /* 卡片设计 */
-        .card { background: white; border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; min-height: 480px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .card { background: white; border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; min-height: 520px; display: flex; flex-direction: column; justify-content: space-between; }
         .hint-area { font-size: 70px; margin: 10px 0; }
         .chinese-hint { font-size: 32px; color: #2c3e50; font-weight: bold; }
-        .ipa { font-size: 20px; color: #7f8c8d; margin-bottom: 10px; font-family: "Lucida Sans Unicode", sans-serif; }
-        
-        /* 输入与反馈 */
-        .quiz-word { font-size: 36px; letter-spacing: 5px; color: var(--primary); font-weight: bold; min-height: 50px; }
-        input { font-size: 26px; padding: 15px; width: 85%; border: 3px solid #eee; border-radius: 15px; text-align: center; outline: none; transition: 0.3s; background: #fafafa; }
-        input:focus { border-color: var(--primary); background: white; }
-        input.correct { border-color: var(--success); background-color: #f0fff4; }
-
-        .sentence { font-size: 18px; color: #444; background: #f1f7ff; padding: 15px; border-radius: 15px; margin-top: 15px; line-height: 1.4; border-left: 5px solid var(--primary); text-align: left; }
-
-        /* 按钮 */
-        .btn { padding: 18px; border: none; border-radius: 15px; cursor: pointer; font-size: 18px; font-weight: bold; margin: 5px; color: white; transition: 0.2s; }
+        .ipa { font-size: 18px; color: #7f8c8d; margin-bottom: 5px; }
+        .quiz-word { font-size: 32px; letter-spacing: 5px; color: var(--primary); font-weight: bold; min-height: 45px; }
+        input { font-size: 24px; padding: 12px; width: 85%; border: 3px solid #eee; border-radius: 12px; text-align: center; outline: none; transition: 0.3s; }
+        input.wrong { border-color: var(--error); background-color: #fff5f5; animation: shake 0.3s; }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+        .sentence-container { display: flex; align-items: center; background: #f1f7ff; padding: 12px; border-radius: 15px; margin-top: 15px; border-left: 5px solid var(--primary); text-align: left; }
+        .sentence-text { font-size: 16px; color: #444; flex: 1; margin-right: 8px; line-height: 1.4; }
+        .btn-speak-sentence { background: var(--primary); color: white; border: none; border-radius: 50%; width: 38px; height: 38px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .btn { padding: 16px; border: none; border-radius: 15px; cursor: pointer; font-size: 18px; font-weight: bold; margin: 5px; color: white; }
         .btn-audio { background: #9b59b6; flex: 1; }
-        .btn-audio:active { transform: scale(0.95); }
         .btn-flip { background: var(--primary); width: 100%; }
-        .btn-next { background: var(--success); width: 100%; display: none; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3); }
-        
-        button:disabled { background: #ccc !important; cursor: not-allowed; transform: none !important; }
+        .btn-submit { background: #34495e; width: 100%; margin-top: 10px; }
+        .btn-next { background: var(--success); width: 100%; margin-top: 10px; display: none; }
+        button:disabled { background: #ccc !important; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div id="progress-tag">正在同步笔记进度...</div>
+        <div id="progress-tag">同步笔记中...</div>
         <div id="timer-msg"></div>
     </div>
 
@@ -48,54 +40,56 @@
         <div id="front-side">
             <div class="hint-area" id="icon-display"></div>
             <div class="chinese-hint" id="cn-display"></div>
-            <p style="color:#999; font-size:14px;">观察图标和中文，准备好后点击下方按钮</p>
             <button class="btn btn-flip" id="flip-btn" onclick="showBack()">🔄 挑战拼写</button>
         </div>
 
         <div id="back-side" style="display:none">
             <div class="ipa" id="ipa-display"></div>
             <div class="quiz-word" id="word-hint"></div>
-            <input type="text" id="wordInput" placeholder="请输入单词" autocomplete="off" oninput="checkInput(event)">
-            
-            <div id="sentence-box" class="sentence"></div>
-
-            <div style="margin-top:20px; display:flex; gap:10px;">
-                <button class="btn btn-audio" onclick="speak('en-GB')">🇬🇧 英音</button>
-                <button class="btn btn-audio" onclick="speak('en-US')">🇺🇸 美音</button>
+            <input type="text" id="wordInput" placeholder="输入单词后提交" autocomplete="off" spellcheck="false">
+            <div class="sentence-container">
+                <div id="sentence-box" class="sentence-text"></div>
+                <button class="btn-speak-sentence" onclick="speakSentence()">🔊</button>
             </div>
+            <div style="margin-top:15px; display:flex; gap:10px;">
+                <button class="btn btn-audio" onclick="speakWord('en-GB')">🇬🇧 英音</button>
+                <button class="btn btn-audio" onclick="speakWord('en-US')">🇺🇸 美音</button>
+            </div>
+            <button id="submit-btn" class="btn btn-submit" onclick="submitAnswer()">确认提交</button>
         </div>
-
-        <button id="next-btn" class="btn btn-next" onclick="handleNext()">🌟 拼对了！下一个</button>
+        <button id="next-btn" class="btn btn-next" onclick="handleNext()">🌟 正确！继续下一个</button>
     </div>
 
     <script>
-        // 【词库区】由Gem的笔记提炼。priority:true 的单词每天都会出现，直到完全掌握
+        // --- 全量整合词库（Gem笔记内容） ---
         const originalLib = [
-            // 重点必考词 (Priority)
+            // 第一部分：高频必考词 (Priority)
             { en: "What", ipa: "/wɒt/", cn: "什么", icon: "❓", sentence: "What is this?", priority: true },
             { en: "How", ipa: "/haʊ/", cn: "怎样", icon: "🛠️", sentence: "How are you?", priority: true },
-            { en: "Can", ipa: "/kæn/", cn: "能/可以", icon: "💪", sentence: "I can sing.", priority: true },
+            { en: "Can", ipa: "/kæn/", cn: "能", icon: "💪", sentence: "I can sing.", priority: true },
             { en: "In", ipa: "/ɪn/", cn: "在...里", icon: "📦", sentence: "It is in the box.", priority: true },
             { en: "On", ipa: "/ɒn/", cn: "在...上", icon: "🔝", sentence: "It is on the desk.", priority: true },
             { en: "Under", ipa: "/ˈʌndə/", cn: "在...下", icon: "👇", sentence: "It is under the chair.", priority: true },
             { en: "With", ipa: "/wɪð/", cn: "和...一起", icon: "👫", sentence: "Play with me.", priority: true },
-            
-            // 基础巩固词
+            { en: "This", ipa: "/ðɪs/", cn: "这个", icon: "📍", sentence: "This is my duck.", priority: true },
+
+            // 第二部分：核心动词与名词
             { en: "Read", ipa: "/riːd/", cn: "读", icon: "📖", sentence: "I read a book." },
-            { en: "Write", ipa: "/raɪt/", cn: "写", icon: "✍️", sentence: "Write your name." },
+            { en: "Write", ipa: "/raɪt/", cn: "写", icon: "✍️", sentence: "You write a word." },
+            { en: "Draw", ipa: "/drɔː/", cn: "画", icon: "🎨", sentence: "I draw a cat." },
+            { en: "Listen", ipa: "/ˈlɪsn/", cn: "听", icon: "👂", sentence: "We listen to music." },
+            { en: "Sing", ipa: "/sɪŋ/", cn: "唱", icon: "🎤", sentence: "They sing a song." },
+            { en: "Jump", ipa: "/dʒʌmp/", cn: "跳", icon: "🦘", sentence: "I jump up and down." },
             { en: "Hand", ipa: "/hænd/", cn: "手", icon: "✋", sentence: "I have two hands." },
             { en: "Eye", ipa: "/aɪ/", cn: "眼睛", icon: "👁️", sentence: "She has big eyes." },
+            { en: "Mouth", ipa: "/maʊθ/", cn: "嘴", icon: "👄", sentence: "Open your mouth." },
             { en: "Good", ipa: "/ɡʊd/", cn: "好的", icon: "👍", sentence: "You are a good boy." },
             { en: "Small", ipa: "/smɔːl/", cn: "小的", icon: "🖱️", sentence: "It is a small toy." }
         ];
 
-        // --- 核心逻辑引擎 ---
-        let wordProgress = JSON.parse(localStorage.getItem('gem_final_v1')) || {};
-        originalLib.forEach(w => {
-            if (!wordProgress[w.en]) wordProgress[w.en] = { level: 0, lastDate: 0 };
-        });
+        let wordProgress = JSON.parse(localStorage.getItem('gem_final_complete')) || {};
+        originalLib.forEach(w => { if (!wordProgress[w.en]) wordProgress[w.en] = { level: 0, lastDate: 0 }; });
 
-        // 筛选今日任务
         const oneDay = 24 * 60 * 60 * 1000;
         let todayLib = originalLib.filter(w => {
             if (w.priority) return true;
@@ -107,9 +101,7 @@
             return false;
         });
 
-        // 优先级排序：重点词永远排在第一位
         todayLib.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
-
         let currentPool = todayLib.length > 0 ? [...todayLib] : [];
         let wrongWords = [];
         let index = 0;
@@ -122,51 +114,53 @@
             const tm = document.getElementById('timer-msg');
             const t = setInterval(() => {
                 c--;
-                if(c>0) tm.innerText = `⏳ 请观察思考 (${c}s)`;
-                else { tm.innerText = "✅ 思考结束，请挑战"; fb.disabled = false; clearInterval(t); }
+                if(c>0) tm.innerText = `⏳ 观察思考中 (${c}s)`;
+                else { tm.innerText = "✅ 思考完成，请挑战"; fb.disabled = false; clearInterval(t); }
             }, 1000);
         }
 
         function showBack() {
-            hasLooked = true; // 只要翻转看答案，就视为需在本轮末尾重新练习
+            hasLooked = true;
             document.getElementById('front-side').style.display = 'none';
             document.getElementById('back-side').style.display = 'block';
             document.getElementById('wordInput').focus();
         }
 
-        function checkInput(e) {
-            if (e.target.value.toLowerCase().trim() === currentPool[index].en.toLowerCase()) {
-                e.target.classList.add('correct');
+        function submitAnswer() {
+            const input = document.getElementById('wordInput');
+            const userVal = input.value.toLowerCase().trim();
+            const correctVal = currentPool[index].en.toLowerCase();
+            if (userVal === correctVal) {
+                input.classList.remove('wrong');
+                document.getElementById('submit-btn').style.display = 'none';
                 document.getElementById('next-btn').style.display = 'block';
-                speak('en-GB');
+                speakWord('en-GB');
             } else {
-                e.target.classList.remove('correct');
-                document.getElementById('next-btn').style.display = 'none';
+                input.classList.add('wrong');
+                alert("拼错啦！别担心，这个词会加入重练清单，等下再试一次。");
+                hasLooked = true;
             }
         }
 
         function handleNext() {
             const currentWord = currentPool[index].en;
             if (hasLooked) {
-                // 如果看了提示，进错题本，且记忆等级归零
                 if (!wrongWords.find(w => w.en === currentWord)) wrongWords.push(currentPool[index]);
                 wordProgress[currentWord].level = 0;
             } else {
-                // 独立拼对，等级提升
                 wordProgress[currentWord].level += 1;
                 wordProgress[currentWord].lastDate = Date.now();
             }
-            localStorage.setItem('gem_final_v1', JSON.stringify(wordProgress));
-
+            localStorage.setItem('gem_final_complete', JSON.stringify(wordProgress));
             index++;
             if (index >= currentPool.length) {
                 if (wrongWords.length > 0) {
-                    alert(`第一轮结束。刚才看提示的 ${wrongWords.length} 个词需要重新练习。`);
+                    alert(`第一轮结束！开始重练刚才的 ${wrongWords.length} 个单词。`);
                     currentPool = [...wrongWords];
                     wrongWords = [];
                     index = 0;
                 } else {
-                    alert("🎉 太棒了，Gem！今天的学习任务全部通关！");
+                    alert("🎉 任务圆满完成！");
                     location.reload();
                     return;
                 }
@@ -174,49 +168,46 @@
             render();
         }
 
-        function speak(lang) {
+        function speakWord(lang) {
             window.speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(currentPool[index].en);
-            u.lang = lang; u.rate = 0.75; // 语速稍慢，适合孩子模仿
+            u.lang = lang; u.rate = 0.75;
+            window.speechSynthesis.speak(u);
+        }
+
+        function speakSentence() {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(currentPool[index].sentence);
+            u.lang = 'en-US'; u.rate = 0.75;
             window.speechSynthesis.speak(u);
         }
 
         function render() {
             if (currentPool.length === 0) {
-                document.body.innerHTML = "<div class='card' style='justify-content:center'><h1>🌟 任务圆满完成</h1><p style='color:#666'>今天没有待复习的词了。<br>明天再来吧，Gem！</p></div>";
+                document.body.innerHTML = "<div class='card' style='justify-content:center'><h1>🌟 任务已完成</h1><p>明天再来吧！</p></div>";
                 return;
             }
             const item = currentPool[index];
             hasLooked = false;
-            
-            document.getElementById('progress-tag').innerHTML = 
-                `<b>今日剩余：</b>${currentPool.length - index} 个 <br>` +
-                `<b>错题本待消灭：</b>${wrongWords.length} 个`;
-            
+            document.getElementById('progress-tag').innerHTML = `今日待完成：${currentPool.length - index} | 需重练：${wrongWords.length}`;
             document.getElementById('icon-display').innerText = item.icon;
             document.getElementById('cn-display').innerText = item.cn;
             document.getElementById('ipa-display').innerText = item.ipa || "";
             document.getElementById('sentence-box').innerText = item.sentence || "";
-            
-            // 拼写提示：显示首尾字母
-            document.getElementById('word-hint').innerText = 
-                item.en[0] + " _ ".repeat(item.en.length - 2) + item.en.slice(-1);
-            
+            document.getElementById('word-hint').innerText = item.en[0] + " _ ".repeat(item.en.length - 2) + item.en.slice(-1);
             const input = document.getElementById('wordInput');
-            input.value = "";
-            input.classList.remove('correct');
-            
+            input.value = ""; input.classList.remove('wrong');
             document.getElementById('front-side').style.display = 'block';
             document.getElementById('back-side').style.display = 'none';
+            document.getElementById('submit-btn').style.display = 'block';
             document.getElementById('next-btn').style.display = 'none';
-            
             lock();
         }
-
         window.onload = render;
     </script>
 </body>
 </html>
+
 
 
 
