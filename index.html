@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Gem家属特训-高清版</title>
+    <link rel="manifest" href="manifest.json">
     <style>
         :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f4f7f9; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; -webkit-tap-highlight-color: transparent; }
@@ -66,29 +67,50 @@
         // 1. 【书架区 / 数据区】
         // 以后你只需要修改或增加下面的内容
         // ==========================================
-        const wordLibrary = [
+                const wordLibrary = [
+            // --- 第一批：基础疑问词与动作 (之前的) ---
             { en: "What", ip: "/wɒt/", cn: "什么", icon: "❓", sentence: "What is your name?" },
             { en: "How", ip: "/haʊ/", cn: "怎样", icon: "🛠️", sentence: "How are you today?" },
             { en: "Where", ip: "/weə/", cn: "哪里", icon: "📍", sentence: "Where is my book?" },
             { en: "Who", ip: "/huː/", cn: "谁", icon: "👤", sentence: "Who is that girl?" },
-            { en: "Behind", ip: "/bɪˈhaɪnd/", cn: "在...后", icon: "🔙", sentence: "The cat is behind the box." },
-            { en: "Beside", ip: "/bɪˈsaɪd/", cn: "在...旁", icon: "🔜", sentence: "Stand beside me." },
-            { en: "Between", ip: "/bɪˈtwiːn/", cn: "在...间", icon: "↔️", sentence: "It is between the two trees." },
-            { en: "Under", ip: "/ˈʌndə/", cn: "在...下", icon: "👇", sentence: "It is under your chair." },
-            { en: "Above", ip: "/əˈbʌv/", cn: "在...上", icon: "☁️", sentence: "The birds are above the house." },
-            { en: "I", ip: "/aɪ/", cn: "我", icon: "🙋", sentence: "I am a student." },
-            { en: "You", ip: "/juː/", cn: "你", icon: "👉", sentence: "You can do it!" },
-            { en: "He", ip: "/hiː/", cn: "他", icon: "👦", sentence: "He is playing football." },
-            { en: "She", ip: "/ʃiː/", cn: "她", icon: "👧", sentence: "She has a nice doll." },
             { en: "Run", ip: "/rʌn/", cn: "跑", icon: "🏃", sentence: "Do not run in the hall." },
             { en: "Swim", ip: "/swɪm/", cn: "游泳", icon: "🏊", sentence: "Fish swim in the water." },
             { en: "Fly", ip: "/flaɪ/", cn: "飞", icon: "✈️", sentence: "I can fly a kite." },
             { en: "Jump", ip: "/dʒʌmp/", cn: "跳", icon: "🦘", sentence: "Jump up high!" },
-            { en: "This", ip: "/ðɪs/", cn: "这", icon: "📎", sentence: "This is my pencil case." },
-            { en: "That", ip: "/ðæt/", cn: "那", icon: "🔭", sentence: "That is a big bird." },
-            { en: "These", ip: "/ðiːz/", cn: "这些", icon: "📚", sentence: "These are my books." },
-            { en: "Those", ip: "/ðəʊz/", cn: "那些", icon: "⭐", sentence: "Those are stars." }
+            
+            // --- 第二批：笔记里的新词 (社交与指令) ---
+            { en: "Share", ip: "/ʃeə/", cn: "分享", icon: "🍰", sentence: "Please share your toys." },
+            { en: "Thank", ip: "/θæŋk/", cn: "谢谢", icon: "🙏", sentence: "Thank you for your help." },
+            { en: "Help", ip: "/help/", cn: "帮助", icon: "🤝", sentence: "Can you help me?" },
+            { en: "Play", ip: "/pleɪ/", cn: "玩", icon: "🎮", sentence: "Let's play together." },
+            { en: "Question", ip: "/'kwestʃən/", cn: "问题", icon: "❔", sentence: "I have a question." },
+            { en: "Repeat", ip: "/rɪ'piːt/", cn: "重复", icon: "🔁", sentence: "Repeat after me." },
+            { en: "Circle", ip: "/'sɜːkl/", cn: "圈出", icon: "⭕", sentence: "Circle the red apple." },
+            { en: "Chant", ip: "/tʃɑːnt/", cn: "歌谣", icon: "🎵", sentence: "Let's say the chant." },
+            { en: "Draw", ip: "/drɔː/", cn: "画", icon: "🎨", sentence: "Can you draw a cat?" },
+
+            // --- 第三批：笔记里的方位介词 (特训难点) ---
+            { en: "In", ip: "/ɪn/", cn: "在...里", icon: "📥", sentence: "It is in the box." },
+            { en: "On", ip: "/ɒn/", cn: "在...上", icon: "🔝", sentence: "The cat is on the mat." },
+            { en: "At", ip: "/æt/", cn: "在某处", icon: "📍", sentence: "I am at school." },
+            { en: "Into", ip: "/'ɪntu/", cn: "到...里", icon: "📩", sentence: "Jump into the water." },
+            { en: "Under", ip: "/'ʌndə/", cn: "在...下", icon: "👇", sentence: "It is under your chair." },
+            { en: "Behind", ip: "/bɪˈhaɪnd/", cn: "在...后", icon: "🔙", sentence: "The cat is behind the box." },
+            { en: "Beside", ip: "/bɪˈsaɪd/", cn: "在...旁", icon: "🔜", sentence: "Stand beside me." },
+            { en: "Between", ip: "/bɪˈtwiːn/", cn: "在...间", icon: "↔️", sentence: "It is between the trees." },
+
+            // --- 第四批：其他笔记词汇 ---
+            { en: "Sun", ip: "/sʌn/", cn: "太阳", icon: "☀️", sentence: "The sun is hot." },
+            { en: "Duck", ip: "/dʌk/", cn: "鸭子", icon: "🦆", sentence: "Look at the duck." },
+            { en: "Careful", ip: "/'keəfl/", cn: "小心的", icon: "⚠️", sentence: "Be careful!" },
+            { en: "Head", ip: "/hed/", cn: "头", icon: "👤", sentence: "Touch your head." },
+            { en: "Toe", ip: "/təʊ/", cn: "脚趾", icon: "🦶", sentence: "Touch your toes." },
+            { en: "Wing", ip: "/wɪŋ/", cn: "翅膀", icon: "🦋", sentence: "The bird has wings." },
+            { en: "Hurry", ip: "/'hʌri/", cn: "赶快", icon: "🏃", sentence: "Hurry up, let's go!" },
+            { en: "This", ip: "/ðɪs/", cn: "这", icon: "📎", sentence: "This is my pencil." },
+            { en: "That", ip: "/ðæt/", cn: "那", icon: "🔭", sentence: "That is a big bird." }
         ];
+
 
         // ==========================================
         // 2. 【主程序 / 逻辑区】
