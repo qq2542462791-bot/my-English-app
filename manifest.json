@@ -3,15 +3,16 @@
   "short_name": "特训App",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#f4f7f9",
+  "background_color": "#4a90e2",
   "theme_color": "#4a90e2",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2911/1460481.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/3532/3532819.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
+
 
