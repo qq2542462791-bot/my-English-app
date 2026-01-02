@@ -3,28 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gem家属专属-智能记忆App</title>
+    <title>Gem家属专属-全能记忆App</title>
     <style>
         :root { --primary: #4a90e2; --success: #2ecc71; --warning: #f1c40f; --bg: #f0f2f5; }
         body { font-family: sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 15px; }
-        .card { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; min-height: 400px; display: flex; flex-direction: column; justify-content: space-between; }
-        .hint-area { font-size: 80px; margin-bottom: 5px; }
-        .chinese-hint { font-size: 28px; color: #333; font-weight: bold; margin: 10px 0; }
-        .quiz-word { font-size: 32px; letter-spacing: 4px; color: var(--primary); font-weight: bold; min-height: 40px; }
+        .card { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; min-height: 450px; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        /* 顶部状态栏 */
+        #progress-tag { background: #eee; padding: 8px 12px; border-radius: 15px; font-size: 13px; margin-bottom: 10px; line-height: 1.4; width: 85%; text-align: center; }
+        #timer-msg { color: #e67e22; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+
+        /* 内容区 */
+        .hint-area { font-size: 80px; margin: 10px 0; }
+        .chinese-hint { font-size: 28px; color: #333; font-weight: bold; }
+        
+        .ipa { font-size: 18px; color: #666; margin: 5px 0; font-family: sans-serif; }
+        .sentence { font-size: 16px; color: #444; background: #f9f9f9; padding: 10px; border-radius: 10px; margin-top: 10px; line-height: 1.4; border-left: 4px solid var(--primary); }
+
+        .quiz-word { font-size: 32px; letter-spacing: 4px; color: var(--primary); font-weight: bold; min-height: 40px; margin: 10px 0; }
         input { font-size: 24px; padding: 12px; width: 85%; border: 3px solid #ddd; border-radius: 12px; text-align: center; outline: none; }
         input.correct { border-color: var(--success); background-color: #f0fff4; }
-        .btn { padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: bold; margin: 5px; color: white; }
+
+        /* 按钮 */
+        .btn { padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-size: 17px; font-weight: bold; margin: 5px; color: white; }
         .btn-audio { background: #9b59b6; width: 45%; }
         .btn-flip { background: var(--primary); width: 100%; margin-top: 10px; }
         .btn-next { background: var(--success); width: 100%; margin-top: 10px; display: none; }
-        #timer-msg { color: #e67e22; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        #progress-tag { background: #eee; padding: 6px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 10px; line-height: 1.5; }
+        
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <div id="progress-tag">加载中...</div>
-    <div id="timer-msg">准备好挑战了吗？</div>
+    <div id="timer-msg">准备挑战</div>
 
     <div class="card">
         <div id="front-side">
@@ -35,7 +47,11 @@
 
         <div id="back-side" style="display:none">
             <div class="quiz-word" id="word-hint"></div>
-            <input type="text" id="wordInput" placeholder="输入单词..." oninput="checkInput(event)">
+            <div class="ipa" id="ipa-display"></div>
+            <input type="text" id="wordInput" placeholder="在此输入单词..." oninput="checkInput(event)">
+            
+            <div id="sentence-box" class="sentence"></div>
+
             <div style="margin-top:15px; display:flex; justify-content: center;">
                 <button class="btn btn-audio" onclick="speak('en-GB')">英音 🇬🇧</button>
                 <button class="btn btn-audio" onclick="speak('en-US')">美音 🇺🇸</button>
@@ -46,34 +62,37 @@
     </div>
 
     <script>
-        // 1. 基础词库 (Gem可以继续在这里增加)
+        // 【词库区】在这里修改单词。优先级单词加 priority: true
         const originalLib = [
-            { en: "Red", cn: "红色", icon: "❤️" }, { en: "Blue", cn: "蓝色", icon: "💙" },
-            { en: "Cat", cn: "猫", icon: "🐱" }, { en: "Dog", cn: "狗", icon: "🐶" },
-            { en: "Apple", cn: "苹果", icon: "🍎" }, { en: "One", cn: "1", icon: "1️⃣" },
-            { en: "Father", cn: "爸爸", icon: "👨" }, { en: "Mother", cn: "妈妈", icon: "👩" }
+            { en: "Apple", ipa: "/ˈæpl/", cn: "苹果", icon: "🍎", sentence: "I eat an apple.", priority: true },
+            { en: "Banana", ipa: "/bəˈnɑːnə/", cn: "香蕉", icon: "🍌", sentence: "This is a banana.", priority: true },
+            { en: "Cat", ipa: "/kæt/", cn: "猫", icon: "🐱", sentence: "I like my cat." },
+            { en: "Dog", ipa: "/dɒɡ/", cn: "狗", icon: "🐶", sentence: "The dog is big." }
         ];
 
-        // 2. 初始化本地记忆进度
-        let wordProgress = JSON.parse(localStorage.getItem('gem_word_v1')) || {};
+        // --- 逻辑处理 (Gem 建议不要改动这里) ---
+        let wordProgress = JSON.parse(localStorage.getItem('gem_smart_v2')) || {};
         originalLib.forEach(w => {
             if (!wordProgress[w.en]) wordProgress[w.en] = { level: 0, lastDate: 0 };
         });
 
-        // 3. 筛选今日任务 (新词 + 到期的旧词)
+        // 筛选今日任务：优先级词 + 到期词
         const oneDay = 24 * 60 * 60 * 1000;
         let todayLib = originalLib.filter(w => {
+            if (w.priority) return true;
             let p = wordProgress[w.en];
             const now = Date.now();
-            if (p.level === 0) return true; 
+            if (p.level === 0) return true;
             if (p.level === 1 && now - p.lastDate > oneDay) return true;
             if (p.level === 2 && now - p.lastDate > 6 * oneDay) return true;
             return false;
         });
 
-        // 4. 运行变量
-        let currentPool = todayLib.length > 0 ? [...todayLib] : []; 
-        let wrongWords = []; 
+        // 排序：必考词在前
+        todayLib.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
+
+        let currentPool = todayLib.length > 0 ? [...todayLib] : [];
+        let wrongWords = [];
         let index = 0;
         let hasLooked = false;
 
@@ -85,12 +104,12 @@
             const t = setInterval(() => {
                 c--;
                 if(c>0) tm.innerText = `⏳ 观察思考 (${c}s)`;
-                else { tm.innerText = "✅ 可以翻面挑战了"; fb.disabled = false; clearInterval(t); }
+                else { tm.innerText = "✅ 请开始拼写"; fb.disabled = false; clearInterval(t); }
             }, 1000);
         }
 
         function showBack() {
-            hasLooked = true; // 只要看答案，就算没掌握，需要重练
+            hasLooked = true; 
             document.getElementById('front-side').style.display = 'none';
             document.getElementById('back-side').style.display = 'block';
             document.getElementById('wordInput').focus();
@@ -106,29 +125,25 @@
 
         function handleNext() {
             const currentWord = currentPool[index].en;
-            
             if (hasLooked) {
-                // 看了答案，进错题本，且记忆等级重置
                 if (!wrongWords.find(w => w.en === currentWord)) wrongWords.push(currentPool[index]);
                 wordProgress[currentWord].level = 0;
             } else {
-                // 没看答案直接拼对，记忆等级+1
                 wordProgress[currentWord].level += 1;
                 wordProgress[currentWord].lastDate = Date.now();
             }
-            
-            localStorage.setItem('gem_word_v1', JSON.stringify(wordProgress));
+            localStorage.setItem('gem_smart_v2', JSON.stringify(wordProgress));
 
             index++;
             if (index >= currentPool.length) {
                 if (wrongWords.length > 0) {
-                    alert("第一轮结束，现在复习刚才看提示的单词。");
+                    alert("第一轮结束，现在复习刚才看提示的词。");
                     currentPool = [...wrongWords];
                     wrongWords = [];
                     index = 0;
                 } else {
-                    alert("🎉 今天的学习任务完成！");
-                    location.reload(); // 刷新以检查是否还有到期词汇
+                    alert("🎉 今天的学习目标达成！");
+                    location.reload();
                     return;
                 }
             }
@@ -144,14 +159,16 @@
 
         function render() {
             if (currentPool.length === 0) {
-                document.body.innerHTML = "<h1>🌟 任务已全部完成！</h1><p>今天没有需要复习的词了，明天再来吧。</p>";
+                document.body.innerHTML = "<div class='card'><h1>🌟 任务完成</h1><p>今天没有需要复习的词啦！</p></div>";
                 return;
             }
             const item = currentPool[index];
             hasLooked = false;
-            document.getElementById('progress-tag').innerHTML = `今日任务剩: ${currentPool.length - index} 个<br>待复习攒了: ${wrongWords.length} 个`;
+            document.getElementById('progress-tag').innerHTML = `今日剩余: ${currentPool.length - index} | 复习本: ${wrongWords.length}`;
             document.getElementById('icon-display').innerText = item.icon;
             document.getElementById('cn-display').innerText = item.cn;
+            document.getElementById('ipa-display').innerText = item.ipa || "";
+            document.getElementById('sentence-box').innerText = item.sentence || "";
             document.getElementById('word-hint').innerText = item.en[0] + " _ ".repeat(item.en.length - 2) + item.en.slice(-1);
             document.getElementById('wordInput').value = "";
             document.getElementById('wordInput').classList.remove('correct');
@@ -165,4 +182,5 @@
     </script>
 </body>
 </html>
+
 
