@@ -2,122 +2,215 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gem单词城堡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Gem家属特训-高清版</title>
     <style>
-        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; }
-        body { font-family: -apple-system, system-ui; background: linear-gradient(180deg, #e3f2fd 0%, #ffffff 100%); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; margin: 0; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; margin-top: 40px; border: 3px solid #bbdefb; }
-        .meaning { font-size: 30px; color: #1565c0; margin-bottom: 20px; font-weight: bold; }
-        input { width: 85%; padding: 15px; font-size: 22px; border: 2px solid #ddd; border-radius: 12px; text-align: center; margin-bottom: 15px; transition: all 0.2s; outline: none; }
-        
-        /* 错误反馈样式 */
-        input.error { border-color: var(--error); background-color: #fff5f5; animation: shake 0.2s; }
-        
-        /* 隐藏区域：只有拼对才显示 */
-        #result-zone { display: none; margin-top: 20px; border-top: 2px dashed #e3f2fd; padding-top: 20px; animation: fadeIn 0.5s; }
-        
-        .voice-btns { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
-        .btn { border: none; padding: 10px 18px; border-radius: 50px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-voice { background: #e3f2fd; color: #1565c0; font-size: 14px; }
-        .btn-next { background: #ffa726; color: white; width: 100%; font-size: 18px; margin-top: 15px; }
-        .example { background: #f9fbe7; padding: 12px; border-radius: 10px; color: #546e7a; font-style: italic; margin: 10px 0; line-height: 1.4; }
-
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f4f7f9; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; -webkit-tap-highlight-color: transparent; }
+        .card { background: white; border-radius: 35px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); text-align: center; width: 100%; max-width: 380px; min-height: 560px; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
+        .chinese-hint { font-size: 36px; color: #2c3e50; font-weight: bold; margin: 15px 0; }
+        .quiz-word { font-size: 34px; letter-spacing: 4px; color: var(--primary); font-weight: bold; min-height: 50px; }
+        input { font-size: 26px; padding: 15px; width: 90%; border: 3px solid #eee; border-radius: 18px; text-align: center; outline: none; transition: all 0.2s; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(74,144,226,0.2); }
+        input.wrong { border-color: var(--error); background: #fff5f5; animation: shake 0.4s; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+        #choice-area { display: none; margin-top: 15px; background: #fff3e0; padding: 15px; border-radius: 20px; border: 2px dashed #ffb74d; }
+        .choice-btn { background: white; border: 2px solid #ffb74d; padding: 12px; margin: 6px; border-radius: 12px; font-size: 18px; width: 85%; cursor: pointer; font-weight: 500; }
+        .sentence-container { display: flex; align-items: center; background: #f0f7ff; padding: 15px; border-radius: 18px; margin: 15px 0; text-align: left; border-left: 6px solid var(--primary); }
+        .btn-speak { background: var(--primary); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(74,144,226,0.3); }
+        .btn { padding: 18px; border: none; border-radius: 20px; cursor: pointer; font-size: 18px; font-weight: bold; color: white; transition: 0.2s; }
+        .btn:active { transform: scale(0.96); }
+        .btn-submit { background: #34495e; width: 100%; }
+        .btn-next { background: var(--success); width: 100%; display: none; }
+        #progress-tag { font-size: 14px; color: #888; margin-bottom: 10px; }
     </style>
 </head>
 <body>
+
+    <div id="progress-tag">加载中...</div>
+
     <div class="card">
-        <div id="meaning" class="meaning"></div>
-        <input type="text" id="userInput" placeholder="拼写单词..." autocomplete="off" autocapitalize="none">
-        
-        <div id="result-zone">
-            <div id="correct-word" style="font-size: 24px; color: var(--success); font-weight: bold;"></div>
-            <div id="phonetic" style="color: #90a4ae; margin: 5px 0;"></div>
-            
-            <div class="voice-btns">
-                <button class="btn btn-voice" onclick="speak('en-GB')">🇬🇧 英音</button>
-                <button class="btn btn-voice" onclick="speak('en-US')">🇺🇸 美音</button>
-            </div>
-            
-            <div id="example" class="example"></div>
-            <button class="btn btn-next" onclick="nextWord()">下一个城堡 🏰</button>
+        <div id="front-side">
+            <div style="font-size:85px; margin-bottom:10px;" id="icon-display"></div>
+            <div class="chinese-hint" id="cn-display"></div>
+            <p style="color:#aaa; font-size:14px;">观察图片，静心思考3秒</p>
+            <button class="btn" style="background:var(--primary); width:100%; margin-top:20px;" id="flip-btn" onclick="showBack()">🔄 准备挑战</button>
         </div>
+
+        <div id="back-side" style="display:none">
+            <div id="ipa-display" style="color:#95a5a6; font-size:20px; margin-bottom:8px;"></div>
+            <div class="quiz-word" id="word-hint"></div>
+            <input type="text" id="wordInput" placeholder="请输入单词" autocomplete="off">
+            
+            <div id="choice-area">
+                <p style="margin:0 0 10px 0; color:#e67e22; font-weight:bold;">🔍 寻宝提示：从下面认出它</p>
+                <div id="choices-list"></div>
+            </div>
+
+            <div class="sentence-container">
+                <div id="sentence-box" style="flex:1; font-size:16px; color:#34495e; padding-right:10px; line-height:1.4;"></div>
+                <button class="btn-speak" onclick="safeSpeak('sentence')">🔊</button>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-bottom:10px;">
+                <button class="btn" style="background:#9b59b6; flex:1;" onclick="safeSpeak('word-gb')">🇬🇧 英音</button>
+                <button class="btn" style="background:#9b59b6; flex:1;" onclick="safeSpeak('word-us')">🇺🇸 美音</button>
+            </div>
+            <button id="submit-btn" class="btn btn-submit" onclick="submitAnswer()">确认提交</button>
+        </div>
+        <button id="next-btn" class="btn btn-next" onclick="handleNext()">🌟 太棒了！下一个</button>
     </div>
 
     <script>
-        // 111个单词库（已为您精简排列）
-        const wordList = [
-            { word: "Talk", meaning: "谈话", phonetic: "/tɔːk/", example: "We can talk later." },
-            { word: "Meet", meaning: "遇见", phonetic: "/miːt/", example: "Nice to meet you." },
-            { word: "Sing", meaning: "唱歌", phonetic: "/sɪŋ/", example: "She likes to sing." },
-            { word: "Wave", meaning: "挥手", phonetic: "/weɪv/", example: "Wave goodbye to dad." },
-            { word: "Friend", meaning: "朋友", phonetic: "/frend/", example: "You are my best friend." },
-            { word: "Name", meaning: "名字", phonetic: "/neɪm/", example: "My name is Gem." },
-            { word: "Sunny", meaning: "晴朗的", phonetic: "/ˈsʌni/", example: "It is a sunny day." },
-            { word: "Spider", meaning: "蜘蛛", phonetic: "/ˈspaɪdə/", example: "Look at that big spider!" }
-            // ... (此处为您保留了昨晚所有的111个单词数据)
+        // ==========================================
+        // 1. 【书架区 / 数据区】
+        // 以后你只需要修改或增加下面的内容
+        // ==========================================
+        const wordLibrary = [
+            { en: "What", ip: "/wɒt/", cn: "什么", icon: "❓", sentence: "What is your name?" },
+            { en: "How", ip: "/haʊ/", cn: "怎样", icon: "🛠️", sentence: "How are you today?" },
+            { en: "Where", ip: "/weə/", cn: "哪里", icon: "📍", sentence: "Where is my book?" },
+            { en: "Who", ip: "/huː/", cn: "谁", icon: "👤", sentence: "Who is that girl?" },
+            { en: "Behind", ip: "/bɪˈhaɪnd/", cn: "在...后", icon: "🔙", sentence: "The cat is behind the box." },
+            { en: "Beside", ip: "/bɪˈsaɪd/", cn: "在...旁", icon: "🔜", sentence: "Stand beside me." },
+            { en: "Between", ip: "/bɪˈtwiːn/", cn: "在...间", icon: "↔️", sentence: "It is between the two trees." },
+            { en: "Under", ip: "/ˈʌndə/", cn: "在...下", icon: "👇", sentence: "It is under your chair." },
+            { en: "Above", ip: "/əˈbʌv/", cn: "在...上", icon: "☁️", sentence: "The birds are above the house." },
+            { en: "I", ip: "/aɪ/", cn: "我", icon: "🙋", sentence: "I am a student." },
+            { en: "You", ip: "/juː/", cn: "你", icon: "👉", sentence: "You can do it!" },
+            { en: "He", ip: "/hiː/", cn: "他", icon: "👦", sentence: "He is playing football." },
+            { en: "She", ip: "/ʃiː/", cn: "她", icon: "👧", sentence: "She has a nice doll." },
+            { en: "Run", ip: "/rʌn/", cn: "跑", icon: "🏃", sentence: "Do not run in the hall." },
+            { en: "Swim", ip: "/swɪm/", cn: "游泳", icon: "🏊", sentence: "Fish swim in the water." },
+            { en: "Fly", ip: "/flaɪ/", cn: "飞", icon: "✈️", sentence: "I can fly a kite." },
+            { en: "Jump", ip: "/dʒʌmp/", cn: "跳", icon: "🦘", sentence: "Jump up high!" },
+            { en: "This", ip: "/ðɪs/", cn: "这", icon: "📎", sentence: "This is my pencil case." },
+            { en: "That", ip: "/ðæt/", cn: "那", icon: "🔭", sentence: "That is a big bird." },
+            { en: "These", ip: "/ðiːz/", cn: "这些", icon: "📚", sentence: "These are my books." },
+            { en: "Those", ip: "/ðəʊz/", cn: "那些", icon: "⭐", sentence: "Those are stars." }
         ];
 
-        // 注入剩下的100多个词（我在这里帮你接上，避免你手动粘贴出错）
-        const extraWords = [
-            { word: "Ear", meaning: "耳朵", phonetic: "/ɪə/", example: "I have two ears." },
-            { word: "Hand", meaning: "手", phonetic: "/hænd/", example: "Wash your hands." },
-            { word: "Small", meaning: "小的", phonetic: "/smɔːl/", example: "It is a small cat." },
-            { word: "Good", meaning: "好的", phonetic: "/ɡʊd/", example: "Good job!" },
-            { word: "Rainy", meaning: "下雨的", phonetic: "/ˈreɪni/", example: "Take an umbrella on rainy days." }
-            // 更多单词可按此格式添加
-        ];
-        const fullList = [...wordList, ...extraWords];
+        // ==========================================
+        // 2. 【主程序 / 逻辑区】
+        // 这里的代码处理发音、检测、寻宝逻辑，轻易不要动
+        // ==========================================
+        let wordProgress = JSON.parse(localStorage.getItem('gem_final_pro_v3')) || {};
+        wordLibrary.forEach(w => { if(!wordProgress[w.en]) wordProgress[w.en] = { level: 0 }; });
 
-        let index = 0;
+        let currentPool = [...wordLibrary], wrongWords = [], index = 0, hasLooked = false;
 
-        function loadWord() {
-            const item = fullList[index];
-            document.getElementById('meaning').innerText = item.meaning;
-            const input = document.getElementById('userInput');
-            input.value = "";
-            input.className = ""; 
-            document.getElementById('result-zone').style.display = "none";
-            input.focus();
+        function safeSpeak(type) {
+            window.speechSynthesis.cancel(); 
+            setTimeout(() => {
+                const item = currentPool[index];
+                const text = type === 'sentence' ? item.sentence : item.en;
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.rate = type === 'sentence' ? 0.45 : 0.7; // 慢速高清
+                msg.pitch = 1.0;
+                msg.volume = 1.0;
+                if(type === 'word-gb') msg.lang = 'en-GB';
+                else msg.lang = 'en-US';
+                window.speechSynthesis.speak(msg);
+            }, 50);
         }
 
-        document.getElementById('userInput').addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase().trim();
-            const target = fullList[index].word.toLowerCase();
+        function showBack() {
+            document.getElementById('front-side').style.display = 'none';
+            document.getElementById('back-side').style.display = 'block';
+            document.getElementById('wordInput').focus();
+        }
 
-            // 实时检查拼写：如果输入错误，框变红
-            if (val.length > 0 && !target.startsWith(val)) {
-                e.target.classList.add('error');
+        function submitAnswer() {
+            const input = document.getElementById('wordInput');
+            const userVal = input.value.toLowerCase().trim();
+            const correctVal = currentPool[index].en.toLowerCase();
+            if (userVal === correctVal) {
+                input.classList.remove('wrong');
+                document.getElementById('submit-btn').style.display = 'none';
+                document.getElementById('next-btn').style.display = 'block';
+                document.getElementById('choice-area').style.display = 'none';
+                safeSpeak('word-gb');
             } else {
-                e.target.classList.remove('error');
+                input.classList.add('wrong');
+                showChoices();
+                hasLooked = true;
             }
-
-            // 拼写完全正确
-            if (val === target) {
-                e.target.classList.remove('error');
-                document.getElementById('correct-word').innerText = fullList[index].word;
-                document.getElementById('phonetic').innerText = fullList[index].phonetic;
-                document.getElementById('example').innerText = fullList[index].example;
-                document.getElementById('result-zone').style.display = "block";
-                speak('en-GB'); // 默认英音庆祝
-            }
-        });
-
-        function speak(lang) {
-            const ut = new SpeechSynthesisUtterance(fullList[index].word);
-            ut.lang = lang;
-            window.speechSynthesis.speak(ut);
         }
 
-        function nextWord() {
-            index = (index + 1) % fullList.length;
-            loadWord();
+        function showChoices() {
+            const area = document.getElementById('choice-area');
+            const list = document.getElementById('choices-list');
+            area.style.display = 'block';
+            list.innerHTML = "";
+            let choices = [currentPool[index].en];
+            while(choices.length < 3) {
+                let r = wordLibrary[Math.floor(Math.random()*wordLibrary.length)].en;
+                if(!choices.includes(r)) choices.push(r);
+            }
+            choices.sort(() => Math.random() - 0.5);
+            choices.forEach(c => {
+                let btn = document.createElement('button');
+                btn.className = "choice-btn";
+                btn.innerText = c;
+                btn.onclick = () => {
+                    document.getElementById('wordInput').value = "";
+                    document.getElementById('wordInput').focus();
+                };
+                list.appendChild(btn);
+            });
         }
 
-        loadWord();
+        function handleNext() {
+            const currentWord = currentPool[index].en;
+            if (hasLooked) {
+                if (!wrongWords.find(w => w.en === currentWord)) wrongWords.push(currentPool[index]);
+            }
+            index++;
+            if (index >= currentPool.length) {
+                if (wrongWords.length > 0) {
+                    currentPool = [...wrongWords]; wrongWords = []; index = 0;
+                    alert("进入强化复习模式！");
+                } else {
+                    alert("🎉 太棒了！任务完成！");
+                    location.reload(); return;
+                }
+            }
+            render();
+        }
+
+        function render() {
+            const item = currentPool[index];
+            hasLooked = false;
+            document.getElementById('progress-tag').innerText = `第 ${index + 1} 个，共 ${currentPool.length} 个`;
+            document.getElementById('icon-display').innerText = item.icon;
+            document.getElementById('cn-display').innerText = item.cn;
+            document.getElementById('ipa-display').innerText = item.ip || "";
+            document.getElementById('sentence-box').innerText = item.sentence;
+            document.getElementById('word-hint').innerText = item.en[0] + " _ ".repeat(item.en.length - 2) + item.en.slice(-1);
+            document.getElementById('wordInput').value = "";
+            document.getElementById('wordInput').classList.remove('wrong');
+            document.getElementById('choice-area').style.display = 'none';
+            document.getElementById('front-side').style.display = 'block';
+            document.getElementById('back-side').style.display = 'none';
+            document.getElementById('submit-btn').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const flipBtn = document.getElementById('flip-btn');
+            flipBtn.disabled = true;
+            let sec = 3;
+            const timer = setInterval(() => {
+                sec--;
+                if(sec <= 0) {
+                    flipBtn.innerText = "🔄 准备挑战";
+                    flipBtn.disabled = false;
+                    clearInterval(timer);
+                } else {
+                    flipBtn.innerText = `思考中 (${sec}s)`;
+                }
+            }, 1000);
+        }
+
+        window.onload = render;
     </script>
 </body>
 </html>
-
