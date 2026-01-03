@@ -316,7 +316,7 @@ const wordLibrary = wordLibraryRaw.map(item => {
             const item = currentPool[index];
             hasLooked = false;
             document.querySelector('.sentence-container').style.display = 'none';
-            document.getElementById('progress-tag').innerText = `第 ${index + 1} 个，共 ${currentPool.length} 个`;
+            document.getElementById('progress-tag').innerText = `第 ${index + 1} 个，共 ${currentPool.length} 个 | 等级: L${item.level}`;
             document.getElementById('icon-display').innerText = item.icon;
             document.getElementById('cn-display').innerText = item.cn;
             document.getElementById('ipa-display').innerText = item.ip || "";
