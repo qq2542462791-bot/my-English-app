@@ -26,6 +26,11 @@
     </style>
 </head>
 <body>
+    <div style="text-align: center; margin-bottom: 10px;">
+    <button onclick="filterLevel(1)" style="padding: 5px 10px; border-radius: 10px; border: 1px solid #ccc;">L1 (2-3字)</button>
+    <button onclick="filterLevel(2)" style="padding: 5px 10px; border-radius: 10px; border: 1px solid #ccc;">L2 (4-5字)</button>
+    <button onclick="filterLevel(3)" style="padding: 5px 10px; border-radius: 10px; border: 1px solid #ccc;">L3 (6字+)</button>
+    <button onclick="filterLevel(0)" style="padding: 5px 10px; border-radius: 10px; border: 1px solid #ccc;">全部</button></div>
 
     <div id="progress-tag">加载中...</div>
 
@@ -212,6 +217,21 @@ const wordLibrary = wordLibraryRaw.map(item => {
     let lv = item.en.length <= 3 ? 1 : (item.en.length <= 5 ? 2 : 3);
     return { ...item, level: lv };
 });
+        // 🚀 核心筛选逻辑：让顶部的 L1/L2/L3 按钮真正起作用
+function filterLevel(lv) {
+    if (lv === 0) {
+        currentPool = [...wordLibrary];
+    } else {
+        currentPool = wordLibrary.filter(item => item.level === lv);
+    }
+    index = 0;
+    wrongWords = [];
+    if (currentPool.length === 0) {
+        alert("这个等级暂时没有单词，先看全部吧！");
+        currentPool = [...wordLibrary];
+    }
+    render();
+}
 
         // ==========================================
         // 2. 【主程序 / 逻辑区】
