@@ -2,241 +2,98 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Gem家属特训-高清版</title>
-    <link rel="manifest" href="manifest.json?v=2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gem单词城堡</title>
+    <link rel="manifest" href="manifest.json?v=3">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3532/3532819.png">
     <style>
-        :root { --primary: #4a90e2; --success: #2ecc71; --error: #e74c3c; --bg: #f4f7f9; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; -webkit-tap-highlight-color: transparent; }
-        .card { background: white; border-radius: 35px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); text-align: center; width: 100%; max-width: 380px; min-height: 560px; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
-        .chinese-hint { font-size: 36px; color: #2c3e50; font-weight: bold; margin: 15px 0; }
-        .quiz-word { font-size: 34px; letter-spacing: 4px; color: var(--primary); font-weight: bold; min-height: 50px; }
-        input { font-size: 26px; padding: 15px; width: 90%; border: 3px solid #eee; border-radius: 18px; text-align: center; outline: none; transition: all 0.2s; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(74,144,226,0.2); }
-        input.wrong { border-color: var(--error); background: #fff5f5; animation: shake 0.4s; }
-        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
-        #choice-area { display: none; margin-top: 15px; background: #fff3e0; padding: 15px; border-radius: 20px; border: 2px dashed #ffb74d; }
-        .choice-btn { background: white; border: 2px solid #ffb74d; padding: 12px; margin: 6px; border-radius: 12px; font-size: 18px; width: 85%; cursor: pointer; font-weight: 500; }
-        .sentence-container { display: flex; align-items: center; background: #f0f7ff; padding: 15px; border-radius: 18px; margin: 15px 0; text-align: left; border-left: 6px solid var(--primary); }
-        .btn-speak { background: var(--primary); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(74,144,226,0.3); }
-        .btn { padding: 18px; border: none; border-radius: 20px; cursor: pointer; font-size: 18px; font-weight: bold; color: white; transition: 0.2s; }
-        .btn:active { transform: scale(0.96); }
-        .btn-submit { background: #34495e; width: 100%; }
-        .btn-next { background: var(--success); width: 100%; display: none; }
-        #progress-tag { font-size: 14px; color: #888; margin-bottom: 10px; }
+        body { font-family: sans-serif; background: #f0f4f8; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; border: 4px solid #4a90e2; }
+        .type-tag { color: #4a90e2; font-weight: bold; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; }
+        .meaning { font-size: 28px; color: #2c3e50; margin-bottom: 25px; }
+        input { width: 85%; padding: 15px; font-size: 20px; border: 3px solid #dee2e6; border-radius: 12px; text-align: center; outline: none; transition: 0.3s; }
+        input:focus { border-color: #4a90e2; box-shadow: 0 0 10px rgba(74,144,226,0.2); }
+        
+        /* 关键：默认隐藏的盲盒区域 */
+        #blind-box { display: none; margin-top: 25px; padding-top: 20px; border-top: 2px dashed #eee; animation: slideUp 0.4s ease-out; }
+        .example-box { background: #e7f3ff; padding: 15px; border-radius: 12px; margin: 15px 0; color: #444; font-style: italic; font-size: 18px; }
+        .btn-next { background: #ff9f43; color: white; border: none; padding: 12px 25px; border-radius: 50px; font-size: 18px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="progress-tag">加载中...</div>
-
     <div class="card">
-        <div id="front-side">
-            <div style="font-size:85px; margin-bottom:10px;" id="icon-display"></div>
-            <div class="chinese-hint" id="cn-display"></div>
-            <p style="color:#aaa; font-size:14px;">观察图片，静心思考3秒</p>
-            <button class="btn" style="background:var(--primary); width:100%; margin-top:20px;" id="flip-btn" onclick="showBack()">🔄 准备挑战</button>
+        <div id="type-display" class="type-tag">加载中...</div>
+        <div id="meaning-display" class="meaning">准备好了吗？</div>
+        <input type="text" id="word-input" placeholder="输入单词拼写..." autocomplete="off" autocapitalize="none">
+
+        <div id="blind-box">
+            <div style="font-size: 24px; color: #27ae60; font-weight: bold; margin-bottom: 10px;">✅ 太棒了！</div>
+            <div id="word-reveal" style="font-size: 22px; font-weight: bold; color: #4a90e2;"></div>
+            <div id="phonetic-display" style="color: #7f8c8d; margin: 5px 0;"></div>
+            <div id="example-display" class="example-box"></div>
+            <button onclick="playAudio()" style="background:#4a90e2; color:white; border:none; padding:8px 15px; border-radius:8px; margin-bottom:10px;">🔊 听读音</button>
+            <br>
+            <button class="btn-next" onclick="nextWord()">挑战下一个城堡 🏰</button>
         </div>
-
-        <div id="back-side" style="display:none">
-            <div id="ipa-display" style="color:#95a5a6; font-size:20px; margin-bottom:8px;"></div>
-            <div class="quiz-word" id="word-hint"></div>
-            <input type="text" id="wordInput" placeholder="请输入单词" autocomplete="off">
-            
-            <div id="choice-area">
-                <p style="margin:0 0 10px 0; color:#e67e22; font-weight:bold;">🔍 寻宝提示：从下面认出它</p>
-                <div id="choices-list"></div>
-            </div>
-
-            <div class="sentence-container">
-                <div id="sentence-box" style="flex:1; font-size:16px; color:#34495e; padding-right:10px; line-height:1.4;"></div>
-                <button class="btn-speak" onclick="safeSpeak('sentence')">🔊</button>
-            </div>
-
-            <div style="display:flex; gap:12px; margin-bottom:10px;">
-                <button class="btn" style="background:#9b59b6; flex:1;" onclick="safeSpeak('word-gb')">🇬🇧 英音</button>
-                <button class="btn" style="background:#9b59b6; flex:1;" onclick="safeSpeak('word-us')">🇺🇸 美音</button>
-            </div>
-            <button id="submit-btn" class="btn btn-submit" onclick="submitAnswer()">确认提交</button>
-        </div>
-        <button id="next-btn" class="btn btn-next" onclick="handleNext()">🌟 太棒了！下一个</button>
     </div>
 
     <script>
-        // ==========================================
-        // 1. 【书架区 / 数据区】
-        // 以后你只需要修改或增加下面的内容
-        // ==========================================
-                const wordLibrary = [
-            // --- 第一批：基础疑问词与动作 (之前的) ---
-            { en: "What", ip: "/wɒt/", cn: "什么", icon: "❓", sentence: "What is your name?" },
-            { en: "How", ip: "/haʊ/", cn: "怎样", icon: "🛠️", sentence: "How are you today?" },
-            { en: "Where", ip: "/weə/", cn: "哪里", icon: "📍", sentence: "Where is my book?" },
-            { en: "Who", ip: "/huː/", cn: "谁", icon: "👤", sentence: "Who is that girl?" },
-            { en: "Run", ip: "/rʌn/", cn: "跑", icon: "🏃", sentence: "Do not run in the hall." },
-            { en: "Swim", ip: "/swɪm/", cn: "游泳", icon: "🏊", sentence: "Fish swim in the water." },
-            { en: "Fly", ip: "/flaɪ/", cn: "飞", icon: "✈️", sentence: "I can fly a kite." },
-            { en: "Jump", ip: "/dʒʌmp/", cn: "跳", icon: "🦘", sentence: "Jump up high!" },
-            
-            // --- 第二批：笔记里的新词 (社交与指令) ---
-            { en: "Share", ip: "/ʃeə/", cn: "分享", icon: "🍰", sentence: "Please share your toys." },
-            { en: "Thank", ip: "/θæŋk/", cn: "谢谢", icon: "🙏", sentence: "Thank you for your help." },
-            { en: "Help", ip: "/help/", cn: "帮助", icon: "🤝", sentence: "Can you help me?" },
-            { en: "Play", ip: "/pleɪ/", cn: "玩", icon: "🎮", sentence: "Let's play together." },
-            { en: "Question", ip: "/'kwestʃən/", cn: "问题", icon: "❔", sentence: "I have a question." },
-            { en: "Repeat", ip: "/rɪ'piːt/", cn: "重复", icon: "🔁", sentence: "Repeat after me." },
-            { en: "Circle", ip: "/'sɜːkl/", cn: "圈出", icon: "⭕", sentence: "Circle the red apple." },
-            { en: "Chant", ip: "/tʃɑːnt/", cn: "歌谣", icon: "🎵", sentence: "Let's say the chant." },
-            { en: "Draw", ip: "/drɔː/", cn: "画", icon: "🎨", sentence: "Can you draw a cat?" },
-
-            // --- 第三批：笔记里的方位介词 (特训难点) ---
-            { en: "In", ip: "/ɪn/", cn: "在...里", icon: "📥", sentence: "It is in the box." },
-            { en: "On", ip: "/ɒn/", cn: "在...上", icon: "🔝", sentence: "The cat is on the mat." },
-            { en: "At", ip: "/æt/", cn: "在某处", icon: "📍", sentence: "I am at school." },
-            { en: "Into", ip: "/'ɪntu/", cn: "到...里", icon: "📩", sentence: "Jump into the water." },
-            { en: "Under", ip: "/'ʌndə/", cn: "在...下", icon: "👇", sentence: "It is under your chair." },
-            { en: "Behind", ip: "/bɪˈhaɪnd/", cn: "在...后", icon: "🔙", sentence: "The cat is behind the box." },
-            { en: "Beside", ip: "/bɪˈsaɪd/", cn: "在...旁", icon: "🔜", sentence: "Stand beside me." },
-            { en: "Between", ip: "/bɪˈtwiːn/", cn: "在...间", icon: "↔️", sentence: "It is between the trees." },
-
-            // --- 第四批：其他笔记词汇 ---
-            { en: "Sun", ip: "/sʌn/", cn: "太阳", icon: "☀️", sentence: "The sun is hot." },
-            { en: "Duck", ip: "/dʌk/", cn: "鸭子", icon: "🦆", sentence: "Look at the duck." },
-            { en: "Careful", ip: "/'keəfl/", cn: "小心的", icon: "⚠️", sentence: "Be careful!" },
-            { en: "Head", ip: "/hed/", cn: "头", icon: "👤", sentence: "Touch your head." },
-            { en: "Toe", ip: "/təʊ/", cn: "脚趾", icon: "🦶", sentence: "Touch your toes." },
-            { en: "Wing", ip: "/wɪŋ/", cn: "翅膀", icon: "🦋", sentence: "The bird has wings." },
-            { en: "Hurry", ip: "/'hʌri/", cn: "赶快", icon: "🏃", sentence: "Hurry up, let's go!" },
-            { en: "This", ip: "/ðɪs/", cn: "这", icon: "📎", sentence: "This is my pencil." },
-            { en: "That", ip: "/ðæt/", cn: "那", icon: "🔭", sentence: "That is a big bird." }
+        // 这里我已经帮你把一部分词按照 动-名-形的关联 填进去了
+        const wordList = [
+            { word: "Wash", meaning: "洗", type: "动词", phonetic: "/wɒʃ/", example: "Wash your hands before dinner." },
+            { word: "Hand", meaning: "手", type: "名词", phonetic: "/hænd/", example: "I have two hands." },
+            { word: "Clean", meaning: "打扫/干净的", type: "形容词", phonetic: "/kliːn/", example: "Your room is very clean!" },
+            { word: "Eat", meaning: "吃", type: "动词", phonetic: "/iːt/", example: "Let's eat some fruit." },
+            { word: "Fruit", meaning: "水果", type: "名词", phonetic: "/fruːt/", example: "I love sweet fruit." },
+            { word: "Good", meaning: "好的", type: "形容词", phonetic: "/ɡʊd/", example: "You are a good student." }
         ];
 
+        let currentIndex = 0;
 
-        // ==========================================
-        // 2. 【主程序 / 逻辑区】
-        // 这里的代码处理发音、检测、寻宝逻辑，轻易不要动
-        // ==========================================
-        let wordProgress = JSON.parse(localStorage.getItem('gem_final_pro_v3')) || {};
-        wordLibrary.forEach(w => { if(!wordProgress[w.en]) wordProgress[w.en] = { level: 0 }; });
-
-        let currentPool = [...wordLibrary], wrongWords = [], index = 0, hasLooked = false;
-
-        function safeSpeak(type) {
-            window.speechSynthesis.cancel(); 
-            setTimeout(() => {
-                const item = currentPool[index];
-                const text = type === 'sentence' ? item.sentence : item.en;
-                const msg = new SpeechSynthesisUtterance(text);
-                msg.rate = type === 'sentence' ? 0.45 : 0.7; // 慢速高清
-                msg.pitch = 1.0;
-                msg.volume = 1.0;
-                if(type === 'word-gb') msg.lang = 'en-GB';
-                else msg.lang = 'en-US';
-                window.speechSynthesis.speak(msg);
-            }, 50);
+        function updateCard() {
+            const item = wordList[currentIndex];
+            document.getElementById('type-display').innerText = "【" + item.type + "】";
+            document.getElementById('meaning-display').innerText = item.meaning;
+            document.getElementById('word-input').value = "";
+            document.getElementById('word-input').style.borderColor = "#dee2e6";
+            document.getElementById('blind-box').style.display = "none";
+            document.getElementById('word-input').focus();
         }
 
-        function showBack() {
-            document.getElementById('front-side').style.display = 'none';
-            document.getElementById('back-side').style.display = 'block';
-            document.getElementById('wordInput').focus();
-        }
+        document.getElementById('word-input').addEventListener('input', (e) => {
+            const secret = wordList[currentIndex].word.toLowerCase();
+            const guess = e.target.value.trim().toLowerCase();
 
-        function submitAnswer() {
-            const input = document.getElementById('wordInput');
-            const userVal = input.value.toLowerCase().trim();
-            const correctVal = currentPool[index].en.toLowerCase();
-            if (userVal === correctVal) {
-                input.classList.remove('wrong');
-                document.getElementById('submit-btn').style.display = 'none';
-                document.getElementById('next-btn').style.display = 'block';
-                document.getElementById('choice-area').style.display = 'none';
-                safeSpeak('word-gb');
-            } else {
-                input.classList.add('wrong');
-                showChoices();
-                hasLooked = true;
+            if (guess === secret) {
+                // 拼对瞬间触发
+                document.getElementById('word-input').style.borderColor = "#27ae60";
+                document.getElementById('word-reveal').innerText = wordList[currentIndex].word;
+                document.getElementById('phonetic-display').innerText = wordList[currentIndex].phonetic;
+                document.getElementById('example-display').innerText = wordList[currentIndex].example;
+                document.getElementById('blind-box').style.display = "block";
+                playAudio(); // 自动奖励读音
             }
+        });
+
+        function playAudio() {
+            const msg = new SpeechSynthesisUtterance(wordList[currentIndex].word);
+            msg.lang = 'en-US';
+            window.speechSynthesis.speak(msg);
         }
 
-        function showChoices() {
-            const area = document.getElementById('choice-area');
-            const list = document.getElementById('choices-list');
-            area.style.display = 'block';
-            list.innerHTML = "";
-            let choices = [currentPool[index].en];
-            while(choices.length < 3) {
-                let r = wordLibrary[Math.floor(Math.random()*wordLibrary.length)].en;
-                if(!choices.includes(r)) choices.push(r);
-            }
-            choices.sort(() => Math.random() - 0.5);
-            choices.forEach(c => {
-                let btn = document.createElement('button');
-                btn.className = "choice-btn";
-                btn.innerText = c;
-                btn.onclick = () => {
-                    document.getElementById('wordInput').value = "";
-                    document.getElementById('wordInput').focus();
-                };
-                list.appendChild(btn);
-            });
+        function nextWord() {
+            currentIndex = (currentIndex + 1) % wordList.length;
+            updateCard();
         }
 
-        function handleNext() {
-            const currentWord = currentPool[index].en;
-            if (hasLooked) {
-                if (!wrongWords.find(w => w.en === currentWord)) wrongWords.push(currentPool[index]);
-            }
-            index++;
-            if (index >= currentPool.length) {
-                if (wrongWords.length > 0) {
-                    currentPool = [...wrongWords]; wrongWords = []; index = 0;
-                    alert("进入强化复习模式！");
-                } else {
-                    alert("🎉 太棒了！任务完成！");
-                    location.reload(); return;
-                }
-            }
-            render();
-        }
-
-        function render() {
-            const item = currentPool[index];
-            hasLooked = false;
-            document.getElementById('progress-tag').innerText = `第 ${index + 1} 个，共 ${currentPool.length} 个`;
-            document.getElementById('icon-display').innerText = item.icon;
-            document.getElementById('cn-display').innerText = item.cn;
-            document.getElementById('ipa-display').innerText = item.ip || "";
-            document.getElementById('sentence-box').innerText = item.sentence;
-            document.getElementById('word-hint').innerText = item.en[0] + " _ ".repeat(item.en.length - 2) + item.en.slice(-1);
-            document.getElementById('wordInput').value = "";
-            document.getElementById('wordInput').classList.remove('wrong');
-            document.getElementById('choice-area').style.display = 'none';
-            document.getElementById('front-side').style.display = 'block';
-            document.getElementById('back-side').style.display = 'none';
-            document.getElementById('submit-btn').style.display = 'block';
-            document.getElementById('next-btn').style.display = 'none';
-            
-            const flipBtn = document.getElementById('flip-btn');
-            flipBtn.disabled = true;
-            let sec = 3;
-            const timer = setInterval(() => {
-                sec--;
-                if(sec <= 0) {
-                    flipBtn.innerText = "🔄 准备挑战";
-                    flipBtn.disabled = false;
-                    clearInterval(timer);
-                } else {
-                    flipBtn.innerText = `思考中 (${sec}s)`;
-                }
-            }, 1000);
-        }
-
-        window.onload = render;
+        updateCard();
     </script>
 </body>
 </html>
+
 
 
 
