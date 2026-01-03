@@ -43,13 +43,104 @@
     <script>
         // 这里我已经帮你把一部分词按照 动-名-形的关联 填进去了
         const wordList = [
-            { word: "Wash", meaning: "洗", type: "动词", phonetic: "/wɒʃ/", example: "Wash your hands before dinner." },
-            { word: "Hand", meaning: "手", type: "名词", phonetic: "/hænd/", example: "I have two hands." },
-            { word: "Clean", meaning: "打扫/干净的", type: "形容词", phonetic: "/kliːn/", example: "Your room is very clean!" },
-            { word: "Eat", meaning: "吃", type: "动词", phonetic: "/iːt/", example: "Let's eat some fruit." },
-            { word: "Fruit", meaning: "水果", type: "名词", phonetic: "/fruːt/", example: "I love sweet fruit." },
-            { word: "Good", meaning: "好的", type: "形容词", phonetic: "/ɡʊd/", example: "You are a good student." }
-        ];
+    // --- 第一组：动作与身体 ---
+    { word: "Wash", meaning: "洗", type: "动词", phonetic: "/wɒʃ/", example: "Wash your hands." },
+    { word: "Hand", meaning: "手", type: "名词", phonetic: "/hænd/", example: "I have two hands." },
+    { word: "Clean", meaning: "干净的", type: "形容词", phonetic: "/kliːn/", example: "The floor is clean." },
+    { word: "Shake", meaning: "摇/握", type: "动词", phonetic: "/ʃeɪk/", example: "Shake hands with your friend." },
+    { word: "Friend", meaning: "朋友", type: "名词", phonetic: "/frend/", example: "She is my best friend." },
+    { word: "Nice", meaning: "友好的", type: "形容词", phonetic: "/naɪs/", example: "It's nice to meet you." },
+
+    // --- 第二组：感知与交流 ---
+    { word: "Listen", meaning: "听", type: "动词", phonetic: "/ˈlɪsn/", example: "Listen to the music." },
+    { word: "Ear", meaning: "耳朵", type: "名词", phonetic: "/ɪər/", example: "We hear with our ears." },
+    { word: "Good", meaning: "好的", type: "形容词", phonetic: "/ɡʊd/", example: "That's a good idea." },
+    { word: "Talk", meaning: "谈话", type: "动词", phonetic: "/tɔːk/", example: "Talk to your teacher." },
+    { word: "Mouth", meaning: "嘴", type: "名词", phonetic: "/maʊθ/", example: "Open your mouth." },
+    { word: "Small", meaning: "小的", type: "形容词", phonetic: "/smɔːl/", example: "The cat is very small." },
+
+    // --- 第三组：学习与书写 ---
+    { word: "Write", meaning: "写", type: "动词", phonetic: "/raɪt/", example: "Write your name here." },
+    { word: "Letter", meaning: "信/字母", type: "名词", phonetic: "/ˈletə/", example: "A is the first letter." },
+    { word: "Different", meaning: "不同的", type: "形容词", phonetic: "/ˈdɪfrənt/", example: "They look different." },
+    { word: "Read", meaning: "读", type: "动词", phonetic: "/riːd/", example: "Read the book aloud." },
+    { word: "Word", meaning: "单词", type: "名词", phonetic: "/wɜːd/", example: "What does this word mean?" },
+    { word: "Same", meaning: "相同的", type: "形容词", phonetic: "/seɪm/", example: "We have the same toy." },
+
+    // --- 第四组：自然与天气 ---
+    { word: "See", meaning: "看见", type: "动词", phonetic: "/siː/", example: "I can see a bird." },
+    { word: "Sea", meaning: "大海", type: "名词", phonetic: "/siː/", example: "The sea is blue." },
+    { word: "Sunny", meaning: "晴朗的", type: "形容词", phonetic: "/ˈsʌni/", example: "It's a sunny day." },
+    { word: "Rainy", meaning: "下雨的", type: "形容词", phonetic: "/ˈreɪni/", example: "I don't like rainy days." },
+    { word: "Warm", meaning: "温暖的", type: "形容词", phonetic: "/wɔːm/", example: "The weather is warm." },
+    { word: "Cold", meaning: "寒冷的", type: "形容词", phonetic: "/kəʊld/", example: "It's very cold today." },
+
+    // --- 第五组：生活与动作 ---
+    { word: "Sit", meaning: "坐", type: "动词", phonetic: "/sɪt/", example: "Sit down, please." },
+    { word: "Shop", meaning: "商店/购物", type: "名词/动词", phonetic: "/ʃɒp/", example: "Let's go to the shop." },
+    { word: "New", meaning: "新的", type: "形容词", phonetic: "/njuː/", example: "I have a new bag." },
+    { word: "Love", meaning: "爱", type: "动词", phonetic: "/lʌv/", example: "I love my family." },
+    { word: "Food", meaning: "食物", type: "名词", phonetic: "/fuːd/", example: "Healthy food is good." },
+    { word: "Amazing", meaning: "神奇的", type: "形容词", phonetic: "/əˈmeɪzɪŋ/", example: "The castle is amazing!" },
+
+    // --- 其余核心词汇 (已全部转换格式) ---
+    { word: "Sing", meaning: "唱歌", type: "动词", phonetic: "/sɪŋ/", example: "Sing a song." },
+    { word: "Wave", meaning: "挥手", type: "动词", phonetic: "/weɪv/", example: "Wave goodbye." },
+    { word: "Point", meaning: "指", type: "动词", phonetic: "/pɔɪnt/", example: "Point to the window." },
+    { word: "Look", meaning: "看", type: "动词", phonetic: "/lʊk/", example: "Look at the map." },
+    { word: "Do", meaning: "做", type: "动词", phonetic: "/duː/", example: "Do your homework." },
+    { word: "Name", meaning: "名字", type: "名词", phonetic: "/neɪm/", example: "What's your name?" },
+    { word: "Eye", meaning: "眼睛", type: "名词", phonetic: "/aɪ/", example: "Close your eyes." },
+    { word: "Month", meaning: "月份", type: "名词", phonetic: "/mʌnθ/", example: "Which month is it?" },
+    { word: "Foot", phonetic: "/fʊt/", type: "名词", meaning: "脚", example: "Wash your feet." },
+    { word: "Arm", phonetic: "/ɑːm/", type: "名词", meaning: "胳膊", example: "My arms are long." },
+    { word: "Sound", phonetic: "/saʊnd/", type: "名词", meaning: "声音", example: "Listen to the sound." },
+    { word: "First", phonetic: "/fɜːst/", type: "形容词", meaning: "第一的", example: "The first day of school." },
+    { word: "Smell", phonetic: "/smel/", type: "动词/名词", meaning: "闻", example: "The flowers smell nice." },
+    { word: "Can", phonetic: "/kæn/", type: "助动词", meaning: "能", example: "I can swim." },
+    { word: "Too", phonetic: "/tuː/", type: "副词", meaning: "也/太", example: "Me too." },
+    { word: "Two", phonetic: "/tuː/", type: "数词", meaning: "二", example: "I have two pencils." },
+    { word: "Air", phonetic: "/eə/", type: "名词", meaning: "空气", example: "The air is fresh." },
+    { word: "Here", phonetic: "/hɪə/", type: "副词", meaning: "这里", example: "Come here." },
+    { word: "There", phonetic: "/ðeə/", type: "副词", meaning: "那里", example: "Look over there." },
+    { word: "Have", phonetic: "/hæv/", type: "动词", phonetic: "/hæv/", meaning: "有", example: "I have a sister." },
+    { word: "Their", phonetic: "/ðeə/", type: "代词", meaning: "他们的", example: "It is their house." },
+    { word: "They", phonetic: "/ðeɪ/", type: "代词", meaning: "他们", example: "They are happy." },
+    { word: "Them", phonetic: "/ðem/", type: "代词", meaning: "他们(宾格)", example: "I like them." },
+    { word: "She", phonetic: "/ʃiː/", type: "代词", meaning: "她", example: "She is a doctor." },
+    { word: "Her", phonetic: "/hɜː/", type: "代词", meaning: "她/她的", example: "That is her car." },
+    { word: "Ask", phonetic: "/ɑːsk/", type: "动词", meaning: "问", example: "Ask a question." },
+    { word: "Some", phonetic: "/sʌm/", type: "形容词", meaning: "一些", example: "I want some water." },
+    { word: "Answer", phonetic: "/ˈɑːnsə/", type: "动词/名词", meaning: "回答", example: "Answer the phone." },
+    { word: "Each", phonetic: "/iːtʃ/", type: "形容词", meaning: "每个", example: "Each child gets a toy." },
+    { word: "Together", phonetic: "/təˈɡeðə/", type: "副词", meaning: "一起", example: "Let's play together." },
+    { word: "Hold", phonetic: "/həʊld/", type: "动词", meaning: "拿/抱", example: "Hold my hand." },
+    { word: "Now", phonetic: "/naʊ/", type: "副词", meaning: "现在", example: "Do it now." },
+    { word: "Start", phonetic: "/stɑːt/", type: "动词", meaning: "开始", example: "Start the game." },
+    { word: "Toy", phonetic: "/tɔɪ/", type: "名词", meaning: "玩具", example: "Where is my toy?" },
+    { word: "Stop", phonetic: "/stɒp/", type: "动词", meaning: "停止", example: "Stop the car." },
+    { word: "Fruit", phonetic: "/fruːt/", type: "名词", meaning: "水果", example: "Eat some fruit." },
+    { word: "Live", phonetic: "/lɪv/", type: "动词", meaning: "居住/生活", example: "Where do you live?" },
+    { word: "Feel", phonetic: "/fiːl/", type: "动词", meaning: "感觉", example: "I feel happy." },
+    { word: "Like", phonetic: "/laɪk/", type: "动词", meaning: "喜欢", example: "I like apples." },
+    { word: "Fast", phonetic: "/fɑːst/", type: "形容词", meaning: "快的", example: "The car is fast." },
+    { word: "Slow", phonetic: "/sləʊ/", type: "形容词", meaning: "慢的", example: "The turtle is slow." },
+    { word: "Know", phonetic: "/nəʊ/", type: "动词", meaning: "知道", example: "I know the answer." },
+    { word: "Animal", phonetic: "/ˈænɪml/", type: "名词", meaning: "动物", example: "What's your favorite animal?" },
+    { word: "Sea", phonetic: "/siː/", type: "名词", meaning: "大海", example: "Look at the sea." },
+    { word: "Bee", phonetic: "/biː/", type: "名词", meaning: "蜜蜂", example: "A bee is on the flower." },
+    { word: "Make", phonetic: "/meɪk/", type: "动词", meaning: "制作", example: "Make a card." },
+    { word: "Touch", phonetic: "/tʌtʃ/", type: "动词", meaning: "触摸", example: "Don't touch that." },
+    { word: "Around", phonetic: "/əˈraʊnd/", type: "副词", meaning: "在...周围", example: "Run around the park." },
+    { word: "Again", phonetic: "/əˈɡen/", type: "副词", meaning: "再次", example: "Try again." },
+    { word: "Many", phonetic: "/ˈmeni/", type: "形容词", meaning: "许多", example: "Many children like it." },
+    { word: "Card", phonetic: "/kɑːd/", type: "名词", meaning: "卡片", example: "Send a card." },
+    { word: "Number", phonetic: "/ˈnʌmbə/", type: "名词", meaning: "数字", example: "What's your number?" },
+    { word: "Spider", phonetic: "/ˈspaɪdə/", type: "名词", meaning: "蜘蛛", example: "A spider is on the wall." },
+    { word: "Over", phonetic: "/ˈəʊvə/", type: "介词", meaning: "在...上方", example: "Jump over the box." },
+    { word: "Right", phonetic: "/raɪt/", type: "形容词", meaning: "正确的", example: "That's right." },
+    { word: "Wrong", phonetic: "/rɒŋ/", type: "形容词", meaning: "错误的", example: "It's wrong." }
+];
 
         let currentIndex = 0;
 
